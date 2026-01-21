@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/dependency_injection/injectable_config.dart';
+import 'core/localization/app_localizations.dart';
+import 'core/widgets/language_cubit.dart';
+import 'core/widgets/settings_bottom_sheet.dart';
 import 'normal_video_player/adaptive_video_player.dart';
 import 'normal_video_player/model/video_config.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-  ]);
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   configureDependencies();
   runApp(const MyApp());
 }
@@ -18,14 +21,33 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Video Player Demo',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
+    return BlocProvider(
+      create: (context) => LanguageCubit(),
+      child: BlocBuilder<LanguageCubit, Locale>(
+        builder: (context, locale) {
+          return MaterialApp(
+            title: 'Video Player Demo',
+            debugShowCheckedModeBanner: false,
+            locale: locale,
+            supportedLocales: const [
+              Locale('en', ''), // English
+              Locale('ar', ''), // Arabic
+            ],
+            localizationsDelegates: const [
+              AppLocalizationsDelegate(),
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            theme: ThemeData(
+              primarySwatch: Colors.blue,
+              useMaterial3: true,
+              fontFamily: 'Cairo',
+            ),
+            home: const VideoPlayerHomePage(),
+          );
+        },
       ),
-      home: const VideoPlayerHomePage(),
     );
   }
 }
@@ -35,26 +57,42 @@ class VideoPlayerHomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Adaptive Video Player'),
+        title: Text(localizations.homeTitle),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                builder: (context) => const SettingsBottomSheet(),
+              );
+            },
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           _buildPlayerCard(
             context,
-            title: 'YouTube Video Example',
-            description: 'Automatically detects and plays YouTube videos',
+            title: localizations.youtubeVideoExample,
+            description: localizations.youtubeVideoDescription,
             icon: Icons.play_circle_filled,
             color: Colors.red,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => VideoPlayerScreen(
-                  title: 'YouTube Video',
+                  title: localizations.youtubeVideo,
                   videoUrl: 'https://www.youtube.com/watch?v=vM2dC8OCZoY',
                 ),
               ),
@@ -63,15 +101,15 @@ class VideoPlayerHomePage extends StatelessWidget {
           const SizedBox(height: 16),
           _buildPlayerCard(
             context,
-            title: 'Direct Video Example',
-            description: 'Automatically plays direct video URLs',
+            title: localizations.directVideoExample,
+            description: localizations.directVideoDescription,
             icon: Icons.video_library,
             color: Colors.blue,
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (_) => VideoPlayerScreen(
-                  title: 'Direct Video (MP4)',
+                  title: localizations.directVideo,
                   videoUrl:
                       'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
                 ),
@@ -87,12 +125,12 @@ class VideoPlayerHomePage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    children: const [
-                      Icon(Icons.info_outline, color: Colors.blue),
-                      SizedBox(width: 8),
+                    children: [
+                      const Icon(Icons.info_outline, color: Colors.blue),
+                      const SizedBox(width: 8),
                       Text(
-                        'Features',
-                        style: TextStyle(
+                        localizations.features,
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -100,12 +138,12 @@ class VideoPlayerHomePage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  _buildFeatureItem('✅ Auto-detects YouTube and direct videos'),
-                  _buildFeatureItem('✅ Custom controls for both player types'),
-                  _buildFeatureItem('✅ Fullscreen support'),
-                  _buildFeatureItem('✅ Playback speed control'),
-                  _buildFeatureItem('✅ Quality settings'),
-                  _buildFeatureItem('✅ Auto-play and loop options'),
+                  _buildFeatureItem(localizations.featureAutoDetect),
+                  _buildFeatureItem(localizations.featureCustomControls),
+                  _buildFeatureItem(localizations.featureFullscreen),
+                  _buildFeatureItem(localizations.featurePlaybackSpeed),
+                  _buildFeatureItem(localizations.featureQualitySettings),
+                  _buildFeatureItem(localizations.featureAutoPlay),
                 ],
               ),
             ),
@@ -132,9 +170,7 @@ class VideoPlayerHomePage extends StatelessWidget {
   }) {
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
@@ -158,15 +194,15 @@ class VideoPlayerHomePage extends StatelessWidget {
                     Text(
                       title,
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       description,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey[600],
-                          ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -200,9 +236,7 @@ class VideoPlayerScreen extends StatelessWidget {
         foregroundColor: Colors.white,
       ),
       body: Center(
-        child: AdaptiveVideoPlayer(
-          config: VideoConfig(videoUrl: videoUrl),
-        ),
+        child: AdaptiveVideoPlayer(config: VideoConfig(videoUrl: videoUrl)),
       ),
     );
   }
