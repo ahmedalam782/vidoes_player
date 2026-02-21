@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:videos_player/videos_player.dart';
+import 'package:adaptive_video_player/adaptive_video_player.dart';
 
 void main() {
   runApp(const MyApp());

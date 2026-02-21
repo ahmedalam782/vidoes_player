@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:videos_player/youtube_player/cubit/youtube_player_cubit.dart';
+import 'package:adaptive_video_player/youtube_player/cubit/youtube_player_cubit.dart';
 
 void main() {
   group('YoutubePlayerCubit', () {

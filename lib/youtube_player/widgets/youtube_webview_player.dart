@@ -46,7 +46,7 @@ class _YouTubeWebViewPlayerState extends State<YouTubeWebViewPlayer> {
     try {
       // Load the HTML content from the package asset
       final htmlContent = await rootBundle.loadString(
-        'packages/videos_player/assets/youtube_player.html',
+        'packages/adaptive_video_player/assets/youtube_player.html',
       );
 
       // Start a local HTTP server on a random available port

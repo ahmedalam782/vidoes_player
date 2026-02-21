@@ -2,7 +2,7 @@
 
 A comprehensive Flutter video player package that seamlessly handles both **YouTube videos** and **direct video URLs** with adaptive player selection. Works on **ALL Platforms: Android, iOS, macOS, Windows, Linux, and Web**.
 
-[![pub package](https://img.shields.io/pub/v/videos_player.svg)](https://pub.dev/packages/videos_player)
+[![pub package](https://img.shields.io/pub/v/adaptive_video_player.svg)](https://pub.dev/packages/adaptive_video_player)
 [![Flutter](https://img.shields.io/badge/Flutter-3.1.0+-02569B?logo=flutter)](https://flutter.dev)
 [![Platforms](https://img.shields.io/badge/Platforms-Android%20|%20iOS%20|%20macOS%20|%20Windows%20|%20Linux%20|%20Web-blue)](https://flutter.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -51,7 +51,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  videos_player: ^1.0.0
+  adaptive_video_player: ^1.0.0
 ```
 
 ## 🔒 Platform Permissions & Setup
@@ -126,7 +126,7 @@ No specific permission files are needed. However, ensure that any external direc
 ## 🚀 Quick Start
 
 ```dart
-import 'package:videos_player/videos_player.dart';
+import 'package:adaptive_video_player/adaptive_video_player.dart';
 
 // YouTube video — detected automatically
 AdaptiveVideoPlayer(
@@ -259,7 +259,7 @@ AdaptiveVideoPlayer(
 
 ```
 lib/
-├── videos_player.dart                    # Package exports
+├── adaptive_video_player.dart                    # Package exports
 ├── adaptive_video_player.dart            # Smart YouTube/direct video detection
 ├── normal_video_player/
 │   ├── normal_video_player.dart          # Chewie-based video player

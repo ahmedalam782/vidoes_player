@@ -5,6 +5,9 @@ import 'youtube_player/youtube_video_player.dart';
 import 'normal_video_player/model/video_config.dart';
 import 'normal_video_player/normal_video_player.dart';
 
+export 'normal_video_player/model/video_config.dart';
+export 'youtube_player/models/player_config.dart';
+
 /// Adaptive video player that detects and plays both YouTube and normal videos
 class AdaptiveVideoPlayer extends StatefulWidget {
   final VideoConfig config;
