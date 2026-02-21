@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 /// Individual setting item widget for YouTube player settings
 class SettingItem extends StatelessWidget {
   final IconData icon;
@@ -43,8 +42,7 @@ class SettingItem extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style:
-                  textStyle ??
+              style: textStyle ??
                   TextStyle(
                     color: textColor,
                     fontSize: 14,
@@ -55,8 +53,8 @@ class SettingItem extends StatelessWidget {
           Switch(
             value: value,
             onChanged: (val) => onChanged(val),
-            inactiveThumbColor: switchInactiveThumbColor ?? Colors.white,
-            inactiveTrackColor: switchInactiveTrackColor ?? Color(0xFFaf8e42),
+            inactiveThumbColor: switchInactiveThumbColor,
+            inactiveTrackColor: switchInactiveTrackColor,
           ),
         ],
       ),

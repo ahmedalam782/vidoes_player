@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import '../widgets/player_settings_helper.dart';
@@ -448,17 +449,22 @@ class PlayerUtils {
     bool showControls = true,
     int startAt = 0,
   }) {
+    final bool isDesktop = !kIsWeb &&
+        (defaultTargetPlatform != TargetPlatform.android &&
+            defaultTargetPlatform != TargetPlatform.iOS);
+
     return YoutubePlayerFlags(
       autoPlay: autoPlay,
       mute: mute,
       loop: loop,
-      showLiveFullscreenButton: false,
-      forceHD: forceHD,
+      showLiveFullscreenButton: true,
+      forceHD: isDesktop ? false : forceHD,
       enableCaption: enableCaption,
-      hideControls: !showControls,
+      hideControls: isDesktop ? false : !showControls,
       controlsVisibleAtStart: true,
       disableDragSeek: false,
-      useHybridComposition: true,
+      useHybridComposition:
+          kIsWeb ? false : (defaultTargetPlatform == TargetPlatform.android),
       startAt: startAt,
     );
   }

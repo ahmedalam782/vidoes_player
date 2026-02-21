@@ -94,6 +94,7 @@ class _PlayerSettingsSheetState extends State<PlayerSettingsSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 12),
             Row(
               children: [
                 Icon(Icons.settings, color: widget.iconColor, size: 24),

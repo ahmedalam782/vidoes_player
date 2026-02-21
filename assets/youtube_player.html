@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
+            width: 100%;
+            background-color: #000;
+        }
+
+        #player {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="player"></div>
+    <script>
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        var player;
+        // These will be set from Dart via evaluateJavascript
+        var videoId = '';
+        var autoplayFlag = 0;
+        var muteFlag = 0;
+
+        function initPlayer(vid, autoplay, mute) {
+            videoId = vid;
+            autoplayFlag = autoplay;
+            muteFlag = mute;
+            if (typeof YT !== 'undefined' && YT.Player) {
+                createPlayer();
+            }
+            // If API not loaded yet, onYouTubeIframeAPIReady will handle it
+        }
+
+        function onYouTubeIframeAPIReady() {
+            if (videoId) {
+                createPlayer();
+            }
+        }
+
+        function createPlayer() {
+            player = new YT.Player('player', {
+                height: '100%',
+                width: '100%',
+                videoId: videoId,
+                playerVars: {
+                    'autoplay': autoplayFlag,
+                    'mute': muteFlag,
+                    'playsinline': 1,
+                    'controls': 1,
+                    'rel': 0,
+                    'showinfo': 0,
+                    'modestbranding': 1
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange,
+                    'onError': onPlayerError
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            if (window.flutter_inappwebview) {
+                window.flutter_inappwebview.callHandler('YouTubePlayerHandler', { 'event': 'onReady' });
+            }
+        }
+
+        function onPlayerStateChange(event) {
+            if (window.flutter_inappwebview) {
+                window.flutter_inappwebview.callHandler('YouTubePlayerHandler', { 'event': 'onStateChange', 'data': event.data });
+            }
+        }
+
+        function onPlayerError(event) {
+            if (window.flutter_inappwebview) {
+                window.flutter_inappwebview.callHandler('YouTubePlayerHandler', { 'event': 'onError', 'data': event.data });
+            }
+        }
+
+        // API calls from Dart
+        function playVideo() { if (player) player.playVideo(); }
+        function pauseVideo() { if (player) player.pauseVideo(); }
+        function seekTo(seconds) { if (player) player.seekTo(seconds, true); }
+        function muteVideo() { if (player) player.mute(); }
+        function unMuteVideo() { if (player) player.unMute(); }
+    </script>
+</body>
+
+</html>

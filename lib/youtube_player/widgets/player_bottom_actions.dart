@@ -5,8 +5,6 @@ import '../models/player_config.dart';
 import 'current_position.dart';
 import 'remaining_duration.dart';
 
-
-
 /// Fullscreen toggle button widget
 class FullscreenButton extends StatelessWidget {
   final VoidCallback onTap;
@@ -82,11 +80,7 @@ class SettingsButton extends StatelessWidget {
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Icon(
-          Icons.settings,
-          color: iconColor,
-          size: 24,
-        ),
+        child: Icon(Icons.settings, color: iconColor, size: 24),
       ),
     );
   }
@@ -116,7 +110,7 @@ class TimeSeparator extends StatelessWidget {
 /// This eliminates duplication between normal and fullscreen player
 class PlayerBottomActionsBuilder {
   /// Builds the list of bottom action widgets for the YouTube player
-  /// 
+  ///
   /// [config] - Styling configuration for the actions
   /// [isMuted] - Current mute state
   /// [isFullscreen] - Whether the player is in fullscreen mode
@@ -161,10 +155,7 @@ class PlayerBottomActionsBuilder {
         isMuted: isMuted,
       ),
       if (showSettingsButton && onSettingsTap != null)
-        SettingsButton(
-          onTap: onSettingsTap,
-          iconColor: config.iconColor,
-        ),
+        SettingsButton(onTap: onSettingsTap, iconColor: config.iconColor),
     ];
   }
 }

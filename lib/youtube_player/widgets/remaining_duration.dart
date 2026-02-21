@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-import '../../core/utils/app_typography.dart';
+
 import '../utils/duration_formatter.dart';
 
 /// A widget which displays the remaining duration of the video.
@@ -52,7 +52,11 @@ class _RemainingDurationState extends State<RemainingDuration> {
       textDirection: TextDirection.ltr,
       child: Text(
         '- ${durationFormatter((_controller.metadata.duration.inMilliseconds) - (_controller.value.position.inMilliseconds))}',
-        style: 12.regular.copyWith(color: Colors.white),
+        style: const TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.w400,
+          color: Colors.white,
+        ),
       ),
     );
   }

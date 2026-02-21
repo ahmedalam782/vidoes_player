@@ -273,7 +273,7 @@ class PlayerPlaybackConfig {
   final bool enableCaption;
 
   const PlayerPlaybackConfig({
-    this.autoPlay = true,
+    this.autoPlay = false,
     this.loop = false,
     this.mute = false,
     this.forceHD = false,
@@ -358,7 +358,7 @@ class PlayerBottomActionsConfig {
     this.timeTextStyle,
   });
 }
-/// Result model returned when exiting fullscreen mode
+
 class FullScreenResult {
   final Duration position;
   final bool wasPlaying;

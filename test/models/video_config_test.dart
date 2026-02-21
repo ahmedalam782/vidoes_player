@@ -55,7 +55,7 @@ void main() {
       const config = VideoConfig(videoUrl: 'https://example.com/video.mp4');
 
       expect(config.playerConfig.style.iconColor, Colors.white);
-      expect(config.playerConfig.playback.autoPlay, true); // Default is true
+      expect(config.playerConfig.playback.autoPlay, false); // Default is false
       expect(config.playerConfig.visibility.showSettingsButton, true);
     });
 

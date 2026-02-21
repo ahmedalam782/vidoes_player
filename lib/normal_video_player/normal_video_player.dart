@@ -15,26 +15,26 @@ class NormalVideoPlayer extends StatefulWidget {
   final Uint8List? videoBytes;
 
   /// Styling configuration for the video player
-  final PlayerStyleConfig styling;
+  final PlayerStyleConfig? styling;
 
   /// Messages configuration for the video player
-  final PlayerTextConfig messages;
+  final PlayerTextConfig? messages;
 
   /// Visibility configuration for the video player
-  final PlayerVisibilityConfig visibility;
+  final PlayerVisibilityConfig? visibility;
 
   /// Playback configuration for the video player
-  final PlayerPlaybackConfig playback;
+  final PlayerPlaybackConfig? playback;
 
   const NormalVideoPlayer({
     super.key,
     required this.videoSource,
     this.isFile = false,
     this.videoBytes,
-    this.styling = const PlayerStyleConfig(),
-    this.messages = const PlayerTextConfig(),
-    this.visibility = const PlayerVisibilityConfig(),
-    this.playback = const PlayerPlaybackConfig(),
+    this.styling,
+    this.messages,
+    this.visibility,
+    this.playback,
   });
 
   @override
@@ -42,7 +42,7 @@ class NormalVideoPlayer extends StatefulWidget {
 }
 
 class NormalVideoPlayerState extends State<NormalVideoPlayer> {
-  late VideoPlayerController _videoPlayerController;
+  VideoPlayerController? _videoPlayerController;
   ChewieController? _chewieController;
   bool _hasError = false;
   String _errorMessage = '';
@@ -56,6 +56,8 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
     _hasInMemoryData = widget.videoBytes != null;
     _effectiveSource = _hasInMemoryData
         ? 'data:video/mp4;base64,${base64Encode(widget.videoBytes!)}'
+        : widget.isFile
+        ? widget.videoSource
         : widget.videoSource;
     _useFileController = widget.isFile && !_hasInMemoryData;
     _initializeVideo();
@@ -93,6 +95,7 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
         '.3gp',
         '.flv',
         '.wmv',
+        '.m9v',
       ];
 
       // If URL has extension, check if it's a video extension
@@ -115,8 +118,11 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
         if (mounted) {
           setState(() {
             _hasError = true;
-            _errorMessage = widget.messages.videoLoadFailedText;
+            _errorMessage = widget.messages?.videoLoadFailedText ?? '';
           });
+        } else {
+          _hasError = true;
+          _errorMessage = widget.messages?.videoLoadFailedText ?? '';
         }
         return;
       }
@@ -152,15 +158,15 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
               ),
             );
 
-      await _videoPlayerController.initialize();
+      await _videoPlayerController!.initialize();
       if (mounted) {
         setState(() {
           _chewieController = ChewieController(
-            videoPlayerController: _videoPlayerController,
-            autoPlay: widget.playback.autoPlay,
-            looping: widget.playback.loop,
-            showControls: widget.visibility.showControls,
-            allowFullScreen: widget.visibility.showFullscreenButton,
+            videoPlayerController: _videoPlayerController!,
+            autoPlay: widget.playback?.autoPlay ?? false,
+            looping: widget.playback?.loop ?? false,
+            showControls: widget.visibility?.showControls ?? true,
+            allowFullScreen: widget.visibility?.showFullscreenButton ?? true,
             allowedScreenSleep: false,
             showControlsOnInitialize: true,
             controlsSafeAreaMinimum: EdgeInsets.zero,
@@ -178,11 +184,17 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
               SystemUiOverlay.bottom,
             ],
             materialProgressColors: ChewieProgressColors(
-              playedColor: widget.styling.progressBarPlayedColor,
-              handleColor: widget.styling.progressBarHandleColor,
-              bufferedColor: widget.styling.progressBarPlayedColor.withValues(
-                alpha: 0.3,
-              ),
+              playedColor:
+                  widget.styling?.progressBarPlayedColor ??
+                  const Color.fromRGBO(255, 0, 0, 0.7),
+              handleColor:
+                  widget.styling?.progressBarHandleColor ??
+                  const Color.fromRGBO(200, 200, 200, 1.0),
+              bufferedColor:
+                  widget.styling?.progressBarPlayedColor.withValues(
+                    alpha: 0.3,
+                  ) ??
+                  const Color.fromRGBO(30, 30, 200, 0.2),
               backgroundColor: Colors.white.withValues(alpha: 0.3),
             ),
             routePageBuilder:
@@ -202,7 +214,7 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
                 },
             placeholder: Center(
               child: CircularProgressIndicator(
-                color: widget.styling.loadingIndicatorColor,
+                color: widget.styling?.loadingIndicatorColor,
                 strokeCap: StrokeCap.round,
               ),
             ),
@@ -212,15 +224,17 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
                 children: [
                   Icon(
                     Icons.error_outline,
-                    color: widget.styling.errorIconColor,
+                    color: widget.styling?.errorIconColor,
                     size: 48,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    widget.messages.videoUnavailableText,
+                    widget.messages?.videoUnavailableText ??
+                        'Video Unavailable',
                     style: TextStyle(
-                      color: widget.styling.textColor,
                       fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: widget.styling?.textColor,
                     ),
                   ),
                 ],
@@ -238,13 +252,17 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
             final errorMsg = e.message ?? e.toString();
             if (errorMsg.contains('MediaCodec') ||
                 errorMsg.contains('ExoPlaybackException')) {
-              _errorMessage = widget.messages.videoNotCompatibleText;
+              _errorMessage =
+                  widget.messages?.videoNotCompatibleText ??
+                  'Video Not Compatible';
             } else {
               _errorMessage =
-                  widget.messages.videoCannotBeLoadedSecurityPolicyText;
+                  widget.messages?.videoCannotBeLoadedSecurityPolicyText ??
+                  'Video Cannot Be Loaded Security Policy';
             }
           } else {
-            _errorMessage = widget.messages.videoLoadFailedText;
+            _errorMessage =
+                widget.messages?.videoLoadFailedText ?? 'Video Load Failed';
           }
         });
       }
@@ -253,7 +271,7 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
 
   @override
   void dispose() {
-    _videoPlayerController.dispose();
+    _videoPlayerController?.dispose();
     _chewieController?.dispose();
     super.dispose();
   }
@@ -263,7 +281,7 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
     if (_hasError) {
       return Container(
         decoration: BoxDecoration(
-          color: widget.styling.backgroundColor,
+          color: widget.styling?.backgroundColor ?? Colors.black,
           borderRadius: BorderRadius.circular(8),
         ),
         child: AspectRatio(
@@ -277,14 +295,18 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
                 children: [
                   Icon(
                     Icons.error_outline,
-                    color: widget.styling.errorIconColor,
+                    color:
+                        widget.styling?.errorIconColor ??
+                        const Color.fromRGBO(255, 0, 0, 0.7),
                     size: 48,
                   ),
                   const SizedBox(height: 8),
                   Text(
                     _errorMessage,
                     style: TextStyle(
-                      color: widget.styling.textColor,
+                      color:
+                          widget.styling?.textColor ??
+                          const Color.fromRGBO(255, 0, 0, 0.7),
                       fontSize: 14,
                     ),
                     textAlign: TextAlign.center,
@@ -302,14 +324,16 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
     if (_chewieController == null) {
       return Container(
         decoration: BoxDecoration(
-          color: widget.styling.backgroundColor,
+          color: widget.styling?.backgroundColor ?? Colors.black,
           borderRadius: BorderRadius.circular(8),
         ),
         child: AspectRatio(
           aspectRatio: 16 / 9,
           child: Center(
             child: CircularProgressIndicator(
-              color: widget.styling.loadingIndicatorColor,
+              color:
+                  widget.styling?.loadingIndicatorColor ??
+                  const Color.fromRGBO(255, 0, 0, 0.7),
               strokeCap: StrokeCap.round,
             ),
           ),
@@ -322,8 +346,8 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
       child: Directionality(
         textDirection: TextDirection.ltr,
         child: AspectRatio(
-          aspectRatio: _videoPlayerController.value.isInitialized
-              ? _videoPlayerController.value.aspectRatio
+          aspectRatio: _videoPlayerController!.value.isInitialized
+              ? _videoPlayerController!.value.aspectRatio
               : 16 / 9,
           child: Chewie(controller: _chewieController!),
         ),
@@ -332,12 +356,14 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
   }
 
   // Public methods
-  void play() => _videoPlayerController.play();
-  void pause() => _videoPlayerController.pause();
-  void seekTo(Duration position) => _videoPlayerController.seekTo(position);
-  Duration get currentPosition => _videoPlayerController.value.position;
-  Duration get duration => _videoPlayerController.value.duration;
-  bool get isPlaying => _videoPlayerController.value.isPlaying;
+  void play() => _videoPlayerController?.play();
+  void pause() => _videoPlayerController?.pause();
+  void seekTo(Duration position) => _videoPlayerController?.seekTo(position);
+  Duration get currentPosition =>
+      _videoPlayerController?.value.position ?? Duration.zero;
+  Duration get duration =>
+      _videoPlayerController?.value.duration ?? Duration.zero;
+  bool get isPlaying => _videoPlayerController?.value.isPlaying ?? false;
   void setPlaybackSpeed(double speed) =>
-      _videoPlayerController.setPlaybackSpeed(speed);
+      _videoPlayerController?.setPlaybackSpeed(speed);
 }

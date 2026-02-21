@@ -1,9 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:injectable/injectable.dart';
+
 import 'youtube_player_state.dart';
 
 export 'youtube_player_state.dart';
-@injectable
+
 /// Cubit for managing YouTube player state
 /// This provides a single source of truth for player state between
 /// normal and fullscreen modes
@@ -32,20 +32,24 @@ class YoutubePlayerCubit extends Cubit<PlayerCubitState> {
 
   /// Enter fullscreen mode, saving current position
   void enterFullscreen(Duration currentPosition, bool wasPlaying) {
-    emit(state.copyWith(
-      isFullscreen: true,
-      position: currentPosition,
-      isPlaying: wasPlaying,
-    ));
+    emit(
+      state.copyWith(
+        isFullscreen: true,
+        position: currentPosition,
+        isPlaying: wasPlaying,
+      ),
+    );
   }
 
   /// Exit fullscreen mode with new position
   void exitFullscreen(Duration position, bool wasPlaying) {
-    emit(state.copyWith(
-      isFullscreen: false,
-      position: position,
-      isPlaying: wasPlaying,
-    ));
+    emit(
+      state.copyWith(
+        isFullscreen: false,
+        position: position,
+        isPlaying: wasPlaying,
+      ),
+    );
   }
 
   /// Update all settings at once (e.g., when returning from fullscreen)
@@ -55,12 +59,14 @@ class YoutubePlayerCubit extends Cubit<PlayerCubitState> {
     bool? forceHD,
     bool? enableCaption,
   }) {
-    emit(state.copyWith(
-      autoPlay: autoPlay,
-      loop: loop,
-      forceHD: forceHD,
-      enableCaption: enableCaption,
-    ));
+    emit(
+      state.copyWith(
+        autoPlay: autoPlay,
+        loop: loop,
+        forceHD: forceHD,
+        enableCaption: enableCaption,
+      ),
+    );
   }
 
   /// Set autoPlay setting
@@ -95,12 +101,20 @@ class YoutubePlayerCubit extends Cubit<PlayerCubitState> {
 
   /// Set error message
   void setError(String? errorMessage) {
-    emit(state.copyWith(errorMessage: errorMessage, clearError: errorMessage == null));
+    emit(
+      state.copyWith(
+        errorMessage: errorMessage,
+        clearError: errorMessage == null,
+      ),
+    );
   }
 
   /// Store state before entering fullscreen
   /// Returns the current state for passing to fullscreen page
-  PlayerCubitState captureStateForFullscreen(Duration position, bool isPlaying) {
+  PlayerCubitState captureStateForFullscreen(
+    Duration position,
+    bool isPlaying,
+  ) {
     final newState = state.copyWith(
       position: position,
       isPlaying: isPlaying,
@@ -120,15 +134,17 @@ class YoutubePlayerCubit extends Cubit<PlayerCubitState> {
     bool? forceHD,
     bool? enableCaption,
   }) {
-    emit(state.copyWith(
-      position: position,
-      isPlaying: wasPlaying,
-      isMuted: isMuted,
-      isFullscreen: false,
-      autoPlay: autoPlay,
-      loop: loop,
-      forceHD: forceHD,
-      enableCaption: enableCaption,
-    ));
+    emit(
+      state.copyWith(
+        position: position,
+        isPlaying: wasPlaying,
+        isMuted: isMuted,
+        isFullscreen: false,
+        autoPlay: autoPlay,
+        loop: loop,
+        forceHD: forceHD,
+        enableCaption: enableCaption,
+      ),
+    );
   }
 }

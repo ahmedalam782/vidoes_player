@@ -354,100 +354,105 @@ class _FullScreenPlayerPageState extends State<FullScreenPlayerPage> {
       bloc: _cubit,
       builder: (context, state) {
         return Scaffold(
-          backgroundColor: Colors.black,
-          body: Stack(
-            children: [
-              // Fullscreen YouTube Player
-              Center(
-                child: AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: YoutubePlayer(
-                    controller: _controller!,
-                    showVideoProgressIndicator: true,
-                    progressIndicatorColor:
-                        widget.config.style.progressBarPlayedColor,
-                    progressColors: ProgressBarColors(
-                      playedColor: widget.config.style.progressBarPlayedColor,
-                      handleColor: widget.config.style.progressBarHandleColor,
-                    ),
-                    bottomActions: PlayerBottomActionsBuilder.build(
-                      config: PlayerBottomActionsConfig(
-                        progressBarPlayedColor:
+            backgroundColor: Colors.black,
+            body: Directionality(
+              textDirection: TextDirection.rtl,
+              child: Stack(
+                children: [
+                  // Fullscreen YouTube Player
+                  Center(
+                    child: AspectRatio(
+                      aspectRatio: 16 / 9,
+                      child: YoutubePlayer(
+                        controller: _controller!,
+                        showVideoProgressIndicator: true,
+                        progressIndicatorColor:
                             widget.config.style.progressBarPlayedColor,
-                        progressBarHandleColor:
-                            widget.config.style.progressBarHandleColor,
-                        iconColor: widget.config.style.iconColor,
-                        textColor: widget.config.style.textColor,
-                        timeTextStyle: widget.config.style.settingItemTextStyle,
-                      ),
-                      isMuted: state.isMuted,
-                      isFullscreen: true,
-                      showFullscreenButton: true,
-                      showSettingsButton:
-                          widget.config.visibility.showSettingsButton,
-                      onFullscreenTap: _exitFullscreen,
-                      onMuteTap: _toggleMute,
-                      onSettingsTap: _showSettingsBottomSheet,
-                    ),
-                    onEnded: (metaData) {
-                      widget.onEnded?.call();
-                    },
-                  ),
-                ),
-              ),
-              // Seek buttons overlay (hide when video ended)
-              if (!_videoEnded)
-                SeekButtonsOverlay(
-                  onSeekBackward: _seekBackward,
-                  onSeekForward: _seekForward,
-                ),
-              // Replay overlay when video ended
-              if (_videoEnded)
-                Positioned.fill(
-                  child: GestureDetector(
-                    onTap: _restartVideo,
-                    child: Container(
-                      color: Colors.black.withValues(alpha: 0.6),
-                      child: Center(
-                        child: Container(
-                          padding: const EdgeInsets.all(20),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.7),
-                            shape: BoxShape.circle,
+                        progressColors: ProgressBarColors(
+                          playedColor:
+                              widget.config.style.progressBarPlayedColor,
+                          handleColor:
+                              widget.config.style.progressBarHandleColor,
+                        ),
+                        bottomActions: PlayerBottomActionsBuilder.build(
+                          config: PlayerBottomActionsConfig(
+                            progressBarPlayedColor:
+                                widget.config.style.progressBarPlayedColor,
+                            progressBarHandleColor:
+                                widget.config.style.progressBarHandleColor,
+                            iconColor: widget.config.style.iconColor,
+                            textColor: widget.config.style.textColor,
+                            timeTextStyle:
+                                widget.config.style.settingItemTextStyle,
                           ),
-                          child: Icon(
-                            Icons.replay,
-                            color: widget.config.style.iconColor,
-                            size: 56,
+                          isMuted: state.isMuted,
+                          isFullscreen: true,
+                          showFullscreenButton: true,
+                          showSettingsButton:
+                              widget.config.visibility.showSettingsButton,
+                          onFullscreenTap: _exitFullscreen,
+                          onMuteTap: _toggleMute,
+                          onSettingsTap: _showSettingsBottomSheet,
+                        ),
+                        onEnded: (metaData) {
+                          widget.onEnded?.call();
+                        },
+                      ),
+                    ),
+                  ),
+                  // Seek buttons overlay (hide when video ended)
+                  if (!_videoEnded)
+                    SeekButtonsOverlay(
+                      onSeekBackward: _seekBackward,
+                      onSeekForward: _seekForward,
+                    ),
+                  // Replay overlay when video ended
+                  if (_videoEnded)
+                    Positioned.fill(
+                      child: GestureDetector(
+                        onTap: _restartVideo,
+                        child: Container(
+                          color: Colors.black.withValues(alpha: 0.6),
+                          child: Center(
+                            child: Container(
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: 0.7),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.replay,
+                                color: widget.config.style.iconColor,
+                                size: 56,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-              // Back button
-              Positioned(
-                top: 40,
-                left: 16,
-                child: GestureDetector(
-                  onTap: _exitFullscreen,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.6),
-                      borderRadius: BorderRadius.circular(25),
+                  // Back button
+                  Positioned(
+                    top: 40,
+                    left: 16,
+                    child: GestureDetector(
+                      onTap: _exitFullscreen,
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                        child: const Icon(
+                          Icons.arrow_back,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                      size: 28,
-                    ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-        );
+            ));
       },
     );
   }

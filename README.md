@@ -1,131 +1,109 @@
 # 🎥 Videos Player
 
-A comprehensive Flutter video player package that seamlessly handles both YouTube videos and direct video URLs with adaptive player selection.
+A comprehensive Flutter video player package that seamlessly handles both **YouTube videos** and **direct video URLs** with adaptive player selection. Works on **Android**, **iOS**, **Windows**, and **Web**.
 
-[![Flutter](https://img.shields.io/badge/Flutter-v3.10.7+-02569B?logo=flutter)](https://flutter.dev)
-[![Dart](https://img.shields.io/badge/Dart-3.10.7+-0175C2?logo=dart)](https://dart.dev)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![pub package](https://img.shields.io/pub/v/videos_player.svg)](https://pub.dev/packages/videos_player)
+[![Flutter](https://img.shields.io/badge/Flutter-3.1.0+-02569B?logo=flutter)](https://flutter.dev)
+[![Platforms](https://img.shields.io/badge/Platforms-Android%20|%20iOS%20|%20Windows%20|%20Web-blue)](https://flutter.dev)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+---
 
 ## ✨ Features
 
 ### 🎬 Adaptive Video Player
-
-- **Smart Detection**: Automatically detects and plays YouTube videos or direct video URLs
-- **Unified API**: Single widget interface for all video types
-- **Seamless Integration**: No need to manually choose between player types
+- **Smart Detection** — Automatically detects YouTube vs direct video URLs
+- **Unified API** — Single `AdaptiveVideoPlayer` widget for all video types
+- **Cross-Platform** — Android, iOS, Windows Desktop, and Web
 
 ### 📺 YouTube Player
-
-- ✅ Full YouTube video support
-- ✅ Custom native-like controls
-- ✅ Fullscreen mode with state preservation
-- ✅ Playback speed control (0.25x - 2x)
-- ✅ Quality settings
-- ✅ Auto-play and loop options
-- ✅ Captions/subtitles support
-- ✅ Mute/unmute functionality
-- ✅ Seek forward/backward (10s jumps)
-- ✅ Settings panel with all controls
+- Full YouTube video support with native-like experience
+- Custom controls on mobile (seek, settings, fullscreen)
+- YouTube native controls on Desktop & Web
+- Auto-play, loop, captions, mute, force HD
+- Settings panel with runtime toggles
+- Fullscreen mode with state preservation
 
 ### 🎞️ Normal Video Player
+- Supports MP4, MOV, AVI, MKV, WebM, M4V, 3GP, and more
+- Network streaming, local file, and in-memory bytes playback
+- Powered by Chewie with advanced controls
+- Error handling with customizable messages
 
-- ✅ Supports multiple video formats (MP4, MOV, AVI, MKV, WebM, etc.)
-- ✅ Network video streaming
-- ✅ Local file playback
-- ✅ In-memory video bytes support
-- ✅ Powered by Chewie for advanced controls
-- ✅ Customizable player UI
-- ✅ Fullscreen support
-- ✅ Error handling with retry options
+---
 
-### 🎨 Customization
+## 🖥️ Platform-Specific YouTube Behavior
 
-- Fully customizable colors and styles
-- Custom text labels and messages
-- Configurable visibility of controls
-- Flexible playback configurations
+| Platform | Engine | Controls |
+|----------|--------|----------|
+| **Android / iOS** | `youtube_player_flutter` | Custom Flutter controls (seek, settings, fullscreen) |
+| **Windows Desktop** | `InAppWebView` + localhost server | YouTube native controls |
+| **Web** | HTML iframe (`dart:html`) | YouTube native controls |
 
-### 🏗️ Architecture
+> **Why localhost on Windows?** YouTube blocks iframe embedding from `data:` and `file://` origins (Error 153). Serving via `http://localhost` provides a trusted origin that YouTube allows.
 
-- **State Management**: BLoC/Cubit pattern with `flutter_bloc`
-- **Dependency Injection**: Clean architecture with `get_it` and `injectable`
-- **Type Safety**: Strongly typed configuration models
-- **Error Handling**: Comprehensive error management
+---
 
 ## 📦 Installation
 
-### 1. Add to `pubspec.yaml`
+Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  flutter:
-    sdk: flutter
-  chewie: ^1.13.0
-  video_player: ^2.10.1
-  youtube_player_flutter: ^9.1.3
-  flutter_bloc: ^9.1.1
-  get_it: ^9.2.0
-  injectable: ^2.7.1+4
-  equatable: ^2.0.8
-
-dev_dependencies:
-  build_runner: ^2.10.5
-  injectable_generator: ^2.12.0
+  videos_player: ^1.0.0
 ```
 
-### 2. Install Dependencies
+### Windows Setup
 
-```bash
-flutter pub get
+YouTube playback on Windows requires **NuGet** for the `flutter_inappwebview` build:
+
+```powershell
+winget install Microsoft.NuGet
 ```
 
-### 3. Generate Injectable Configuration
-
-```bash
-dart run build_runner build --delete-conflicting-outputs
-```
-
-## 🚀 Quick Start
-
-### Initialize Dependency Injection
-
-In your `main.dart`:
+For MP4 playback on Windows, register the video player plugin in `main()`:
 
 ```dart
-import 'package:flutter/material.dart';
-import 'core/dependency_injection/injectable_config.dart';
+import 'package:flutter/foundation.dart';
+import 'package:video_player_win/video_player_win_plugin.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  configureDependencies();
+  if (!kIsWeb && defaultTargetPlatform == TargetPlatform.windows) {
+    WindowsVideoPlayer.registerWith();
+  }
   runApp(const MyApp());
 }
 ```
 
-### Basic Usage
+---
+
+## 🚀 Quick Start
 
 ```dart
-import 'package:videos_player/normal_video_player/adaptive_video_player.dart';
-import 'package:videos_player/normal_video_player/model/video_config.dart';
+import 'package:videos_player/videos_player.dart';
 
-// The player automatically detects if it's YouTube or direct video
+// YouTube video — detected automatically
 AdaptiveVideoPlayer(
   config: VideoConfig(
-    videoUrl: 'https://www.youtube.com/watch?v=VIDEO_ID',
-    // or direct video: 'https://example.com/video.mp4'
+    videoUrl: 'https://www.youtube.com/watch?v=vM2dC8OCZoY',
+  ),
+)
+
+// Direct video — detected automatically
+AdaptiveVideoPlayer(
+  config: VideoConfig(
+    videoUrl: 'https://example.com/video.mp4',
   ),
 )
 ```
 
+---
+
 ## 📖 Usage Examples
 
-### 1. YouTube Video
+### YouTube with Custom Config
 
 ```dart
-import 'package:videos_player/normal_video_player/adaptive_video_player.dart';
-import 'package:videos_player/normal_video_player/model/video_config.dart';
-import 'package:videos_player/youtube_player/models/player_config.dart';
-
 AdaptiveVideoPlayer(
   config: VideoConfig(
     videoUrl: 'https://www.youtube.com/watch?v=vM2dC8OCZoY',
@@ -137,31 +115,21 @@ AdaptiveVideoPlayer(
         enableCaption: true,
       ),
       style: PlayerStyleConfig(
-        iconColor: Colors.red,
+        iconColor: Colors.white,
         progressBarPlayedColor: Colors.red,
+        progressBarHandleColor: Colors.redAccent,
+        backgroundColor: Colors.black,
+      ),
+      visibility: PlayerVisibilityConfig(
+        showSettingsButton: true,
+        showFullscreenButton: true,
       ),
     ),
   ),
 )
 ```
 
-### 2. Direct Video URL
-
-```dart
-AdaptiveVideoPlayer(
-  config: VideoConfig(
-    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
-    playerConfig: YouTubePlayerConfig(
-      playback: PlayerPlaybackConfig(
-        autoPlay: false,
-        loop: true,
-      ),
-    ),
-  ),
-)
-```
-
-### 3. Local Video File
+### Local Video File
 
 ```dart
 AdaptiveVideoPlayer(
@@ -172,257 +140,159 @@ AdaptiveVideoPlayer(
 )
 ```
 
-### 4. Video from Memory (Uint8List)
-
-```dart
-import 'dart:typed_data';
-
-final Uint8List videoBytes = ...; // Your video bytes
-
-AdaptiveVideoPlayer(
-  config: VideoConfig(
-    videoUrl: '', // Not used for in-memory videos
-    videoBytes: videoBytes,
-  ),
-)
-```
-
-### 5. Full Custom Configuration
+### Video from Memory
 
 ```dart
 AdaptiveVideoPlayer(
   config: VideoConfig(
-    videoUrl: 'https://www.youtube.com/watch?v=VIDEO_ID',
-    playerConfig: YouTubePlayerConfig(
-      // Playback settings
-      playback: PlayerPlaybackConfig(
-        autoPlay: true,
-        loop: false,
-        mute: false,
-        forceHD: true,
-        enableCaption: true,
-        startAt: Duration(seconds: 30),
-      ),
-
-      // Style customization
-      style: PlayerStyleConfig(
-        iconColor: Colors.white,
-        textColor: Colors.white,
-        progressBarPlayedColor: Colors.blue,
-        progressBarHandleColor: Colors.blueAccent,
-        backgroundColor: Colors.black,
-        loadingIndicatorColor: Colors.blue,
-      ),
-
-      // Custom text labels
-      text: PlayerTextConfig(
-        playerSettingsText: 'Settings',
-        autoPlayText: 'Auto Play',
-        loopVideoText: 'Loop Video',
-        qualityText: 'Quality',
-        speedText: 'Speed',
-        muteAudioText: 'Mute',
-      ),
-
-      // Control visibility
-      visibility: PlayerVisibilityConfig(
-        showSettingsButton: true,
-        showFullscreenButton: true,
-        showAutoPlaySetting: true,
-        showLoopSetting: true,
-        showForceHDSetting: true,
-        showCaptionsSetting: true,
-      ),
-    ),
+    videoUrl: '',
+    videoBytes: myUint8ListBytes,
   ),
 )
 ```
 
-## 🎛️ Configuration Options
+---
 
-### VideoConfig
-
-| Property       | Type                  | Description                   | Default        |
-| -------------- | --------------------- | ----------------------------- | -------------- |
-| `videoUrl`     | `String`              | Video URL (YouTube or direct) | Required       |
-| `isFile`       | `bool`                | Whether video is a local file | `false`        |
-| `videoBytes`   | `Uint8List?`          | Video data in memory          | `null`         |
-| `playerConfig` | `YouTubePlayerConfig` | Complete player configuration | Default config |
+## 🎛️ Configuration Reference
 
 ### YouTubePlayerConfig
 
-Contains four sub-configurations:
+#### PlayerPlaybackConfig
 
-#### 1. PlayerPlaybackConfig
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `autoPlay` | `bool` | `false` | Auto-start playback |
+| `loop` | `bool` | `false` | Loop video |
+| `mute` | `bool` | `false` | Start muted |
+| `forceHD` | `bool` | `false` | Force HD quality |
+| `enableCaption` | `bool` | `false` | Enable captions |
 
-| Property        | Type        | Description         | Default |
-| --------------- | ----------- | ------------------- | ------- |
-| `autoPlay`      | `bool`      | Auto-start playback | `false` |
-| `loop`          | `bool`      | Loop video          | `false` |
-| `mute`          | `bool`      | Start muted         | `false` |
-| `forceHD`       | `bool`      | Force HD quality    | `false` |
-| `enableCaption` | `bool`      | Enable captions     | `true`  |
-| `startAt`       | `Duration?` | Start position      | `null`  |
+#### PlayerStyleConfig
 
-#### 2. PlayerStyleConfig
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `progressBarPlayedColor` | `Color` | `Colors.red` | Progress bar color |
+| `progressBarHandleColor` | `Color` | `Colors.redAccent` | Handle color |
+| `iconColor` | `Color` | `Colors.white` | Control icons color |
+| `textColor` | `Color` | `Colors.white` | Text color |
+| `backgroundColor` | `Color` | `#1D1D1D` | Player background |
+| `loadingIndicatorColor` | `Color` | `Colors.red` | Loading spinner color |
+| `errorIconColor` | `Color` | `Colors.red` | Error icon color |
+| `settingsBackgroundColor` | `Color` | `#1D1D1D` | Settings sheet background |
 
-| Property                 | Type    | Description      | Default        |
-| ------------------------ | ------- | ---------------- | -------------- |
-| `iconColor`              | `Color` | Icon color       | `Colors.white` |
-| `textColor`              | `Color` | Text color       | `Colors.white` |
-| `progressBarPlayedColor` | `Color` | Progress color   | `Colors.red`   |
-| `backgroundColor`        | `Color` | Background color | `#1D1D1D`      |
-| `loadingIndicatorColor`  | `Color` | Loading color    | `Colors.red`   |
+#### PlayerTextConfig
 
-#### 3. PlayerTextConfig
+| Property | Type | Default |
+|----------|------|---------|
+| `invalidYoutubeUrlText` | `String` | `"Invalid YouTube URL"` |
+| `videoLoadFailedText` | `String` | `"Failed to load video"` |
+| `playerSettingsText` | `String` | `"Player Settings"` |
+| `autoPlayText` | `String` | `"Auto Play"` |
+| `loopVideoText` | `String` | `"Loop Video"` |
+| `forceHdQualityText` | `String` | `"Force HD Quality"` |
+| `enableCaptionsText` | `String` | `"Enable Captions"` |
+| `muteAudioText` | `String` | `"Mute Audio"` |
 
-| Property             | Type     | Description     | Default             |
-| -------------------- | -------- | --------------- | ------------------- |
-| `playerSettingsText` | `String` | Settings title  | `"Player Settings"` |
-| `autoPlayText`       | `String` | Auto-play label | `"Auto Play"`       |
-| `loopVideoText`      | `String` | Loop label      | `"Loop Video"`      |
-| `qualityText`        | `String` | Quality label   | `"Quality"`         |
-| `speedText`          | `String` | Speed label     | `"Playback Speed"`  |
+#### PlayerVisibilityConfig
 
-#### 4. PlayerVisibilityConfig
+| Property | Type | Default |
+|----------|------|---------|
+| `showControls` | `bool` | `true` |
+| `showFullscreenButton` | `bool` | `true` |
+| `showSettingsButton` | `bool` | `true` |
+| `showAutoPlaySetting` | `bool` | `true` |
+| `showLoopSetting` | `bool` | `true` |
+| `showForceHDSetting` | `bool` | `true` |
+| `showCaptionsSetting` | `bool` | `true` |
+| `showMuteSetting` | `bool` | `true` |
 
-| Property               | Type   | Description            | Default |
-| ---------------------- | ------ | ---------------------- | ------- |
-| `showSettingsButton`   | `bool` | Show settings button   | `true`  |
-| `showFullscreenButton` | `bool` | Show fullscreen button | `true`  |
-| `showAutoPlaySetting`  | `bool` | Show auto-play option  | `true`  |
-| `showLoopSetting`      | `bool` | Show loop option       | `true`  |
-| `showForceHDSetting`   | `bool` | Show HD option         | `true`  |
-
-## 🧪 Testing
-
-Run all tests:
-
-```bash
-flutter test
-```
-
-Run tests with coverage:
-
-```bash
-flutter test --coverage
-```
+---
 
 ## 🏛️ Architecture
 
 ```
 lib/
-├── core/
-│   ├── dependency_injection/    # Injectable configuration
-│   └── utils/                   # Shared utilities
+├── videos_player.dart                    # Package exports
+├── adaptive_video_player.dart            # Smart YouTube/direct video detection
 ├── normal_video_player/
-│   ├── adaptive_video_player.dart    # Main adaptive player
-│   ├── normal_video_player.dart      # Direct video player
+│   ├── normal_video_player.dart          # Chewie-based video player
 │   └── model/
-│       └── video_config.dart         # Configuration model
+│       └── video_config.dart             # Video configuration model
 └── youtube_player/
-    ├── youtube_video_player.dart     # YouTube player widget
-    ├── cubit/                        # State management
-    │   ├── youtube_player_cubit.dart
+    ├── youtube_video_player.dart          # Main YouTube player (platform-aware)
+    ├── cubit/
+    │   ├── youtube_player_cubit.dart      # BLoC state management
     │   └── youtube_player_state.dart
-    ├── models/                       # Configuration models
-    │   └── player_config.dart
-    ├── utils/                        # Utilities
-    │   ├── player_utils.dart
-    │   └── duration_formatter.dart
-    └── widgets/                      # UI components
-        ├── player_controls.dart
-        ├── player_settings_sheet.dart
-        └── fullscreen_player_page.dart
+    ├── models/
+    │   └── player_config.dart            # YouTube player config models
+    ├── utils/
+    │   ├── player_utils.dart             # Player utility functions
+    │   ├── youtube_web_actual.dart        # Web iframe implementation
+    │   ├── youtube_web_export.dart        # Conditional export
+    │   └── youtube_web_stub.dart          # Stub for non-web
+    └── widgets/
+        ├── youtube_webview_player.dart    # Desktop WebView player (localhost)
+        ├── player_controls.dart          # Seek overlay, loading, error widgets
+        ├── player_bottom_actions.dart    # Bottom action bar builder
+        ├── player_settings_sheet.dart    # Settings bottom sheet
+        ├── player_settings_helper.dart   # Settings helper
+        ├── setting_item.dart             # Individual setting toggle
+        └── fullscreen_player_page.dart   # Fullscreen player page
 ```
-
-## 🔧 Supported Video Formats
-
-### Direct Videos
-
-- MP4 (`.mp4`)
-- MOV (`.mov`)
-- AVI (`.avi`)
-- MKV (`.mkv`)
-- WebM (`.webm`)
-- M4V (`.m4v`)
-- 3GP (`.3gp`)
-- FLV (`.flv`)
-- WMV (`.wmv`)
-
-### YouTube
-
-- Standard YouTube URLs
-- Shortened URLs (youtu.be)
-- Embedded URLs
-- Mobile URLs (m.youtube.com)
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 👨‍💻 Author
-
-**Ahmed Mohamed**
-
-- GitHub: [@ahmedalam782](https://github.com/ahmedalam782)
-
-## 🙏 Acknowledgments
-
-- [video_player](https://pub.dev/packages/video_player) - Flutter's official video player
-- [chewie](https://pub.dev/packages/chewie) - Video player with controls
-- [youtube_player_flutter](https://pub.dev/packages/youtube_player_flutter) - YouTube player for Flutter
-- [flutter_bloc](https://pub.dev/packages/flutter_bloc) - State management
-- [get_it](https://pub.dev/packages/get_it) - Service locator
-- [injectable](https://pub.dev/packages/injectable) - Code generation for get_it
-
-## 🐛 Known Issues
-
-- None at the moment. Please report any issues on GitHub.
-
-## 🔮 Roadmap
-
-- [ ] Add playlist support
-- [ ] Add picture-in-picture mode
-- [ ] Add casting support (Chromecast)
-- [ ] Add download functionality
-- [ ] Add offline playback
-- [ ] Add more video format support
-- [ ] Add video editing capabilities
-- [ ] Add live streaming support
-
-## ❓ FAQ
-
-**Q: Does this support live streaming?**  
-A: Not yet, but it's on the roadmap.
-
-**Q: Can I use this for audio-only content?**  
-A: Yes, though it's optimized for video. You can disable video display through custom styling.
-
-**Q: How do I handle errors?**  
-A: The player has built-in error handling with retry options. You can also customize error messages through `PlayerTextConfig`.
-
-**Q: Does it work on all platforms?**  
-A: It works on Android, iOS, and Web. Desktop support depends on the underlying video_player package.
-
-## 💡 Tips
-
-1. **Always initialize dependencies** before using the player
-2. **Use adaptive player** for automatic detection of video types
-3. **Customize config** based on your app's theme
-4. **Test on real devices** for best performance assessment
-5. **Handle errors gracefully** with custom error messages
 
 ---
 
-Made with ❤️ by Ahmed Mohamed
+## 🔧 Supported Formats
+
+**YouTube URLs:**
+`youtube.com/watch?v=...` · `youtu.be/...` · `youtube.com/embed/...` · `m.youtube.com/watch?v=...` · Direct Video IDs
+
+**Video Files:**
+MP4 · MOV · AVI · MKV · WebM · M4V · 3GP · FLV · WMV
+
+---
+
+## ❓ FAQ
+
+**Q: I get "Error 153" on Windows Desktop.**  
+A: This is handled automatically. The package serves YouTube via `http://localhost` to bypass the restriction.
+
+**Q: I get "Nuget is not installed" on Windows.**  
+A: Run `winget install Microsoft.NuGet` and restart your IDE.
+
+**Q: MP4 videos don't play on Windows.**  
+A: Add `WindowsVideoPlayer.registerWith()` in your `main()` before `runApp()`.
+
+**Q: Does it work on macOS/Linux?**  
+A: Desktop support uses `InAppWebView` which primarily supports Windows. macOS/Linux support depends on `flutter_inappwebview` platform availability.
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 👨‍💻 Author
+
+**Ahmed Mohamed Alam** · GitHub: [@ahmedalam782](https://github.com/ahmedalam782)
+
+## 🙏 Dependencies
+
+- [youtube_player_flutter](https://pub.dev/packages/youtube_player_flutter) — YouTube player for mobile
+- [flutter_inappwebview](https://pub.dev/packages/flutter_inappwebview) — WebView for Desktop YouTube
+- [video_player](https://pub.dev/packages/video_player) — Flutter's official video player
+- [chewie](https://pub.dev/packages/chewie) — Video player controls
+- [flutter_bloc](https://pub.dev/packages/flutter_bloc) — State management
+- [video_player_win](https://pub.dev/packages/video_player_win) — Windows MP4 support

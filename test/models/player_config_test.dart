@@ -82,7 +82,7 @@ void main() {
     test('creates PlayerPlaybackConfig with default values', () {
       const config = PlayerPlaybackConfig();
 
-      expect(config.autoPlay, true);
+      expect(config.autoPlay, false);
       expect(config.loop, false);
       expect(config.mute, false);
       expect(config.forceHD, false);

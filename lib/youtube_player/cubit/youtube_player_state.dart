@@ -1,8 +1,6 @@
-import 'package:equatable/equatable.dart';
-
 /// State class for YouTube player cubit
 /// Named with 'Cubit' suffix to avoid conflict with Widget State classes
-class PlayerCubitState extends Equatable {
+class PlayerCubitState {
   /// Current playback position
   final Duration position;
 
@@ -78,19 +76,4 @@ class PlayerCubitState extends Equatable {
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     );
   }
-
-  @override
-  List<Object?> get props => [
-        position,
-        isPlaying,
-        isMuted,
-        isFullscreen,
-        autoPlay,
-        loop,
-        forceHD,
-        enableCaption,
-        duration,
-        isReady,
-        errorMessage,
-      ];
 }
