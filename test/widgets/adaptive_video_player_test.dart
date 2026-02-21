@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:videos_player/normal_video_player/model/video_config.dart';
-import 'package:videos_player/youtube_player/models/player_config.dart';
-import 'package:videos_player/youtube_player/utils/player_utils.dart';
+import 'package:adaptive_video_player/normal_video_player/model/video_config.dart';
+import 'package:adaptive_video_player/youtube_player/models/player_config.dart';
+import 'package:adaptive_video_player/youtube_player/utils/player_utils.dart';
 
 void main() {
   group('VideoConfig Widget Configuration', () {
