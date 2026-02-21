@@ -1,10 +1,10 @@
 # 🎥 Videos Player
 
-A comprehensive Flutter video player package that seamlessly handles both **YouTube videos** and **direct video URLs** with adaptive player selection. Works on **Android**, **iOS**, **Windows**, and **Web**.
+A comprehensive Flutter video player package that seamlessly handles both **YouTube videos** and **direct video URLs** with adaptive player selection. Works on **ALL Platforms: Android, iOS, macOS, Windows, Linux, and Web**.
 
 [![pub package](https://img.shields.io/pub/v/videos_player.svg)](https://pub.dev/packages/videos_player)
 [![Flutter](https://img.shields.io/badge/Flutter-3.1.0+-02569B?logo=flutter)](https://flutter.dev)
-[![Platforms](https://img.shields.io/badge/Platforms-Android%20|%20iOS%20|%20Windows%20|%20Web-blue)](https://flutter.dev)
+[![Platforms](https://img.shields.io/badge/Platforms-Android%20|%20iOS%20|%20macOS%20|%20Windows%20|%20Linux%20|%20Web-blue)](https://flutter.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
@@ -14,7 +14,7 @@ A comprehensive Flutter video player package that seamlessly handles both **YouT
 ### 🎬 Adaptive Video Player
 - **Smart Detection** — Automatically detects YouTube vs direct video URLs
 - **Unified API** — Single `AdaptiveVideoPlayer` widget for all video types
-- **Cross-Platform** — Android, iOS, Windows Desktop, and Web
+- **Cross-Platform** — Runs beautifully on **Android, iOS, macOS, Windows, Linux, and Web**!
 
 ### 📺 YouTube Player
 - Full YouTube video support with native-like experience
@@ -37,11 +37,11 @@ A comprehensive Flutter video player package that seamlessly handles both **YouT
 
 | Platform | Engine | Controls |
 |----------|--------|----------|
-| **Android / iOS** | `youtube_player_flutter` | Custom Flutter controls (seek, settings, fullscreen) |
-| **Windows Desktop** | `InAppWebView` + localhost server | YouTube native controls |
+| **Android / iOS** | `youtube_player_flutter` | Custom Flutter controls (seek, settings, fullscreen). Can be forced to Desktop Mode. |
+| **macOS / Windows / Linux** | `InAppWebView` + localhost server | YouTube native controls |
 | **Web** | HTML iframe (`dart:html`) | YouTube native controls |
 
-> **Why localhost on Windows?** YouTube blocks iframe embedding from `data:` and `file://` origins (Error 153). Serving via `http://localhost` provides a trusted origin that YouTube allows.
+> **Why localhost on Desktop (Windows, macOS, Linux)?** YouTube blocks iframe embedding from local files like `data:` and `file://` (Error 153). Serving via `http://localhost` provides a trusted origin that YouTube allows.
 
 ---
 
@@ -114,6 +114,9 @@ void main() {
   runApp(const MyApp());
 }
 ```
+
+### 🐧 Linux
+Linux requires WebKit for the `flutter_inappwebview` playback. Ensure your system has the necessary GTK/WebKit packages installed (e.g., `libwebkit2gtk-4.1-dev` on Ubuntu/Debian).
 
 ### 🌐 Web
 No specific permission files are needed. However, ensure that any external direct videos (MP4, MKV) you stream are hosted on servers with **CORS** (Cross-Origin Resource Sharing) enabled. YouTube videos are handled automatically via iframe.
