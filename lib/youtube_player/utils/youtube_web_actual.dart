@@ -10,7 +10,7 @@ void registerYoutubeWebIframe(String viewId, String videoId, bool autoPlay) {
       ..style.width = '100%'
       ..style.height = '100%'
       ..src =
-          'https://www.youtube.com/embed/$videoId?autoplay=${autoPlay ? 1 : 0}&rel=0'
+          'https://www.youtube.com/embed/$videoId?autoplay=${autoPlay ? 1 : 0}&rel=0&vq=medium'
       ..allowFullscreen = true
       ..allow = 'autoplay; fullscreen';
     return iframe;

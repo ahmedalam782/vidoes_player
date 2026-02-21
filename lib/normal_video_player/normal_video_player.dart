@@ -57,8 +57,8 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
     _effectiveSource = _hasInMemoryData
         ? 'data:video/mp4;base64,${base64Encode(widget.videoBytes!)}'
         : widget.isFile
-        ? widget.videoSource
-        : widget.videoSource;
+            ? widget.videoSource
+            : widget.videoSource;
     _useFileController = widget.isFile && !_hasInMemoryData;
     _initializeVideo();
   }
@@ -184,14 +184,11 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
               SystemUiOverlay.bottom,
             ],
             materialProgressColors: ChewieProgressColors(
-              playedColor:
-                  widget.styling?.progressBarPlayedColor ??
+              playedColor: widget.styling?.progressBarPlayedColor ??
                   const Color.fromRGBO(255, 0, 0, 0.7),
-              handleColor:
-                  widget.styling?.progressBarHandleColor ??
+              handleColor: widget.styling?.progressBarHandleColor ??
                   const Color.fromRGBO(200, 200, 200, 1.0),
-              bufferedColor:
-                  widget.styling?.progressBarPlayedColor.withValues(
+              bufferedColor: widget.styling?.progressBarPlayedColor.withValues(
                     alpha: 0.3,
                   ) ??
                   const Color.fromRGBO(30, 30, 200, 0.2),
@@ -199,19 +196,19 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
             ),
             routePageBuilder:
                 (context, animation, secondaryAnimation, provider) {
-                  return Directionality(
-                    textDirection: TextDirection.ltr,
-                    child: AnimatedBuilder(
-                      animation: animation,
-                      builder: (context, child) {
-                        return Scaffold(
-                          backgroundColor: Colors.black,
-                          body: Center(child: provider),
-                        );
-                      },
-                    ),
-                  );
-                },
+              return Directionality(
+                textDirection: TextDirection.ltr,
+                child: AnimatedBuilder(
+                  animation: animation,
+                  builder: (context, child) {
+                    return Scaffold(
+                      backgroundColor: Colors.black,
+                      body: Center(child: provider),
+                    );
+                  },
+                ),
+              );
+            },
             placeholder: Center(
               child: CircularProgressIndicator(
                 color: widget.styling?.loadingIndicatorColor,
@@ -252,13 +249,12 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
             final errorMsg = e.message ?? e.toString();
             if (errorMsg.contains('MediaCodec') ||
                 errorMsg.contains('ExoPlaybackException')) {
-              _errorMessage =
-                  widget.messages?.videoNotCompatibleText ??
+              _errorMessage = widget.messages?.videoNotCompatibleText ??
                   'Video Not Compatible';
             } else {
               _errorMessage =
                   widget.messages?.videoCannotBeLoadedSecurityPolicyText ??
-                  'Video Cannot Be Loaded Security Policy';
+                      'Video Cannot Be Loaded Security Policy';
             }
           } else {
             _errorMessage =
@@ -295,8 +291,7 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
                 children: [
                   Icon(
                     Icons.error_outline,
-                    color:
-                        widget.styling?.errorIconColor ??
+                    color: widget.styling?.errorIconColor ??
                         const Color.fromRGBO(255, 0, 0, 0.7),
                     size: 48,
                   ),
@@ -304,8 +299,7 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
                   Text(
                     _errorMessage,
                     style: TextStyle(
-                      color:
-                          widget.styling?.textColor ??
+                      color: widget.styling?.textColor ??
                           const Color.fromRGBO(255, 0, 0, 0.7),
                       fontSize: 14,
                     ),
@@ -331,8 +325,7 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
           aspectRatio: 16 / 9,
           child: Center(
             child: CircularProgressIndicator(
-              color:
-                  widget.styling?.loadingIndicatorColor ??
+              color: widget.styling?.loadingIndicatorColor ??
                   const Color.fromRGBO(255, 0, 0, 0.7),
               strokeCap: StrokeCap.round,
             ),

@@ -67,7 +67,8 @@
                     'controls': 1,
                     'rel': 0,
                     'showinfo': 0,
-                    'modestbranding': 1
+                    'modestbranding': 1,
+                    'vq': 'medium'
                 },
                 events: {
                     'onReady': onPlayerReady,
@@ -78,12 +79,16 @@
         }
 
         function onPlayerReady(event) {
+            event.target.setPlaybackQuality('medium');
             if (window.flutter_inappwebview) {
                 window.flutter_inappwebview.callHandler('YouTubePlayerHandler', { 'event': 'onReady' });
             }
         }
 
         function onPlayerStateChange(event) {
+            if (event.data === YT.PlayerState.BUFFERING || event.data === YT.PlayerState.PLAYING) {
+                event.target.setPlaybackQuality('medium');
+            }
             if (window.flutter_inappwebview) {
                 window.flutter_inappwebview.callHandler('YouTubePlayerHandler', { 'event': 'onStateChange', 'data': event.data });
             }

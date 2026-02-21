@@ -444,8 +444,8 @@ class PlayerUtils {
     bool autoPlay = false,
     bool mute = false,
     bool loop = false,
-    bool forceHD = true,
-    bool enableCaption = true,
+    bool forceHD = false,
+    bool enableCaption = false,
     bool showControls = true,
     int startAt = 0,
   }) {

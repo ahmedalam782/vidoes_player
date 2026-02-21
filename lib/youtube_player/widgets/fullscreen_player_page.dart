@@ -401,10 +401,23 @@ class _FullScreenPlayerPageState extends State<FullScreenPlayerPage> {
                     ),
                   ),
                   // Seek buttons overlay (hide when video ended)
-                  if (!_videoEnded)
-                    SeekButtonsOverlay(
-                      onSeekBackward: _seekBackward,
-                      onSeekForward: _seekForward,
+                  if (!_videoEnded && _controller != null)
+                    ValueListenableBuilder<YoutubePlayerValue>(
+                      valueListenable: _controller!,
+                      builder: (context, value, child) {
+                        return AnimatedOpacity(
+                          opacity: value.isControlsVisible ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 300),
+                          child: IgnorePointer(
+                            ignoring: !value.isControlsVisible,
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: SeekButtonsOverlay(
+                        onSeekBackward: _seekBackward,
+                        onSeekForward: _seekForward,
+                      ),
                     ),
                   // Replay overlay when video ended
                   if (_videoEnded)
@@ -431,25 +444,39 @@ class _FullScreenPlayerPageState extends State<FullScreenPlayerPage> {
                       ),
                     ),
                   // Back button
-                  Positioned(
-                    top: 40,
-                    left: 16,
-                    child: GestureDetector(
-                      onTap: _exitFullscreen,
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.6),
-                          borderRadius: BorderRadius.circular(25),
-                        ),
-                        child: const Icon(
-                          Icons.arrow_back,
-                          color: Colors.white,
-                          size: 28,
+                  if (_controller != null)
+                    Positioned(
+                      top: 40,
+                      left: 16,
+                      child: ValueListenableBuilder<YoutubePlayerValue>(
+                        valueListenable: _controller!,
+                        builder: (context, value, child) {
+                          return AnimatedOpacity(
+                            opacity: value.isControlsVisible ? 1.0 : 0.0,
+                            duration: const Duration(milliseconds: 300),
+                            child: IgnorePointer(
+                              ignoring: !value.isControlsVisible,
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: GestureDetector(
+                          onTap: _exitFullscreen,
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.6),
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                            child: const Icon(
+                              Icons.arrow_back,
+                              color: Colors.white,
+                              size: 28,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ));

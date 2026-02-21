@@ -102,8 +102,7 @@ class _PlayerSettingsSheetState extends State<PlayerSettingsSheet> {
                 Expanded(
                   child: Text(
                     widget.playerSettingsText,
-                    style:
-                        widget.titleTextStyle ??
+                    style: widget.titleTextStyle ??
                         TextStyle(
                           color: widget.textColor,
                           fontSize: 18,

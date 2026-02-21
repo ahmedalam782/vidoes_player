@@ -21,6 +21,7 @@ A comprehensive Flutter video player package that seamlessly handles both **YouT
 - Custom controls on mobile (seek, settings, fullscreen)
 - YouTube native controls on Desktop & Web
 - Auto-play, loop, captions, mute, force HD
+- Force Desktop Mode on mobile (`forceDesktopMode: true` to use WebViews on Android/iOS)
 - Settings panel with runtime toggles
 - Fullscreen mode with state preservation
 
@@ -53,16 +54,55 @@ dependencies:
   videos_player: ^1.0.0
 ```
 
-### Windows Setup
+## 🔒 Platform Permissions & Setup
 
+To ensure network videos and YouTube play correctly across devices, please configure the required platform permissions:
+
+### 🤖 Android
+Ensure you have the `INTERNET` permission in your `android/app/src/main/AndroidManifest.xml`:
+```xml
+<uses-permission android:name="android.permission.INTERNET"/>
+```
+*(Optional)* For playing `http://` (unencrypted) video URLs, also add `usesCleartextTraffic` to your `<application>` tag:
+```xml
+<application
+    ...
+    android:usesCleartextTraffic="true">
+```
+
+### 🍎 iOS
+To allow the YouTube player (which uses Platform Views) to render without being stuck on a loading screen, add the following to your `ios/Runner/Info.plist`:
+
+```xml
+<key>io.flutter.embedded_views_preview</key>
+<true/>
+```
+
+*(Optional)* For loading `http://` (unencrypted) video URLs safely, also add:
+```xml
+<key>NSAppTransportSecurity</key>
+<dict>
+  <key>NSAllowsArbitraryLoads</key>
+  <true/>
+  <key>NSAllowsArbitraryLoadsInWebContent</key>
+  <true/>
+</dict>
+```
+
+### 🍏 macOS
+For network video playback and YouTube webview support on macOS, you must grant the application permission to act as a network client.
+Open `macos/Runner/DebugProfile.entitlements` and `macos/Runner/Release.entitlements` and add the following:
+```xml
+<key>com.apple.security.network.client</key>
+<true/>
+```
+
+### 🪟 Windows
 YouTube playback on Windows requires **NuGet** for the `flutter_inappwebview` build:
-
 ```powershell
 winget install Microsoft.NuGet
 ```
-
-For MP4 playback on Windows, register the video player plugin in `main()`:
-
+For normal video playback (MP4s, etc.) on Windows, register the video player plugin in `main()`:
 ```dart
 import 'package:flutter/foundation.dart';
 import 'package:video_player_win/video_player_win_plugin.dart';
@@ -74,6 +114,9 @@ void main() {
   runApp(const MyApp());
 }
 ```
+
+### 🌐 Web
+No specific permission files are needed. However, ensure that any external direct videos (MP4, MKV) you stream are hosted on servers with **CORS** (Cross-Origin Resource Sharing) enabled. YouTube videos are handled automatically via iframe.
 
 ---
 
@@ -113,6 +156,7 @@ AdaptiveVideoPlayer(
         loop: false,
         forceHD: true,
         enableCaption: true,
+        forceDesktopMode: true, // Uses WebViews on Android/iOS instead of native player
       ),
       style: PlayerStyleConfig(
         iconColor: Colors.white,

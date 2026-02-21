@@ -183,7 +183,7 @@ class PlayerTextConfig {
           videoNotCompatibleText ?? this.videoNotCompatibleText,
       videoCannotBeLoadedSecurityPolicyText:
           videoCannotBeLoadedSecurityPolicyText ??
-          this.videoCannotBeLoadedSecurityPolicyText,
+              this.videoCannotBeLoadedSecurityPolicyText,
       playerSettingsText: playerSettingsText ?? this.playerSettingsText,
       autoPlayText: autoPlayText ?? this.autoPlayText,
       loopVideoText: loopVideoText ?? this.loopVideoText,
@@ -272,12 +272,17 @@ class PlayerPlaybackConfig {
   /// Whether to enable captions
   final bool enableCaption;
 
+  /// Whether to force the player to behave like a desktop player on mobile.
+  /// This will use the WebView player instead of the native YouTube player on mobile.
+  final bool forceDesktopMode;
+
   const PlayerPlaybackConfig({
     this.autoPlay = false,
     this.loop = false,
     this.mute = false,
     this.forceHD = false,
     this.enableCaption = false,
+    this.forceDesktopMode = false,
   });
 
   /// Creates a copy with updated values
@@ -287,6 +292,7 @@ class PlayerPlaybackConfig {
     bool? mute,
     bool? forceHD,
     bool? enableCaption,
+    bool? forceDesktopMode,
   }) {
     return PlayerPlaybackConfig(
       autoPlay: autoPlay ?? this.autoPlay,
@@ -294,6 +300,7 @@ class PlayerPlaybackConfig {
       mute: mute ?? this.mute,
       forceHD: forceHD ?? this.forceHD,
       enableCaption: enableCaption ?? this.enableCaption,
+      forceDesktopMode: forceDesktopMode ?? this.forceDesktopMode,
     );
   }
 }

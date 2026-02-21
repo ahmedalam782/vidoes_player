@@ -11,6 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Videos Player Example',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
@@ -65,6 +66,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 config: VideoConfig(
                   videoUrl: 'https://www.youtube.com/watch?v=vM2dC8OCZoY',
                   playerConfig: YouTubePlayerConfig(
+                    playback: PlayerPlaybackConfig(
+                      // forceDesktopMode: true,
+                    ),
                     text: PlayerTextConfig(
                       invalidYoutubeUrlText: 'Invalid YouTube URL provided.',
                       videoLoadFailedText: 'We failed to load the video.',

@@ -57,6 +57,13 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
   YouTubePlayerConfig get _cfg => widget.config;
   PlayerCubitState get _state => _cubit.state;
 
+  bool get _useDesktopPlayer {
+    if (kIsWeb) return false;
+    final isDesktopPlatform = defaultTargetPlatform != TargetPlatform.android &&
+        defaultTargetPlatform != TargetPlatform.iOS;
+    return isDesktopPlatform || _cfg.playback.forceDesktopMode;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -120,13 +127,9 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
         return;
       }
 
-      final bool isDesktop = !kIsWeb &&
-          (defaultTargetPlatform != TargetPlatform.android &&
-              defaultTargetPlatform != TargetPlatform.iOS);
-
-      // On Desktop, skip creating YoutubePlayerController.
+      // On Desktop (or forced), skip creating YoutubePlayerController.
       // We use YouTubeWebViewPlayer (InAppWebView + localhost server) to avoid Error 153.
-      if (isDesktop) {
+      if (_useDesktopPlayer) {
         if (mounted) {
           setState(() {
             _isControllerDisposed = false;
@@ -495,9 +498,6 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
       );
     }
     final controller = _controller;
-    final isDesktop = !kIsWeb &&
-        (defaultTargetPlatform != TargetPlatform.android &&
-            defaultTargetPlatform != TargetPlatform.iOS);
 
     if (_videoId == null || _isControllerDisposed) {
       return PlayerLoadingWidget(
@@ -505,8 +505,8 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
         backgroundColor: _cfg.style.backgroundColor,
       );
     }
-    // On mobile, we need the controller to be ready
-    if (!kIsWeb && !isDesktop && controller == null) {
+    // On mobile, we need the native controller to be ready
+    if (!kIsWeb && !_useDesktopPlayer && controller == null) {
       return PlayerLoadingWidget(
         loadingIndicatorColor: _cfg.style.loadingIndicatorColor,
         backgroundColor: _cfg.style.backgroundColor,
@@ -528,8 +528,8 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
                   // Web: HTML iframe
                   if (kIsWeb && _webIframeId != null)
                     buildYoutubeWebIframe(_webIframeId!)
-                  // Desktop: InAppWebView + localhost server
-                  else if (isDesktop)
+                  // Desktop or forced: InAppWebView + localhost server
+                  else if (_useDesktopPlayer)
                     YouTubeWebViewPlayer(
                       videoId: _videoId!,
                       config: _cfg,
@@ -569,13 +569,29 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
                       onEnded: (metaData) => widget.onEnded?.call(),
                     ),
                   // Seek overlay (mobile only)
-                  if (!_videoEnded && !kIsWeb && !isDesktop)
-                    SeekButtonsOverlay(
-                      onSeekBackward: _seekBackward,
-                      onSeekForward: _seekForward,
+                  if (!_videoEnded &&
+                      !kIsWeb &&
+                      !_useDesktopPlayer &&
+                      controller != null)
+                    ValueListenableBuilder<YoutubePlayerValue>(
+                      valueListenable: controller,
+                      builder: (context, value, child) {
+                        return AnimatedOpacity(
+                          opacity: value.isControlsVisible ? 1.0 : 0.0,
+                          duration: const Duration(milliseconds: 300),
+                          child: IgnorePointer(
+                            ignoring: !value.isControlsVisible,
+                            child: child,
+                          ),
+                        );
+                      },
+                      child: SeekButtonsOverlay(
+                        onSeekBackward: _seekBackward,
+                        onSeekForward: _seekForward,
+                      ),
                     ),
                   // Replay overlay (mobile only)
-                  if (_videoEnded && !kIsWeb && !isDesktop)
+                  if (_videoEnded && !kIsWeb && !_useDesktopPlayer)
                     Positioned.fill(
                       child: GestureDetector(
                         onTap: _restartVideo,
@@ -598,8 +614,9 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
                         ),
                       ),
                     ),
-                  // Back button (Web & Desktop)
-                  if ((kIsWeb || isDesktop) && Navigator.canPop(context))
+                  // Back button (Web & Desktop / WebView)
+                  if ((kIsWeb || _useDesktopPlayer) &&
+                      Navigator.canPop(context))
                     Positioned(
                       top: 24,
                       left: 16,
