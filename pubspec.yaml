@@ -1,6 +1,6 @@
 name: adaptive_video_player
 description: "A Flutter video player package that seamlessly handles both YouTube videos and direct video URLs with adaptive player selection. Supports Android, iOS, Windows, and Web."
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/ahmedalam782/vidoes_player
 repository: https://github.com/ahmedalam782/vidoes_player
 issue_tracker: https://github.com/ahmedalam782/vidoes_player/issues

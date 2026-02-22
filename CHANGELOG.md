@@ -1,3 +1,7 @@
+## 1.0.1
+
+* Enhanced platform architecture and fixed Web static analysis support
+
 ## 1.0.0
 
 * Initial release
