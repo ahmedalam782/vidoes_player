@@ -1,6 +1,8 @@
-## 1.0.1
+## 1.0.2
 
-* Enhanced platform architecture and fixed Web static analysis support
+* Fix web platform compatibility issue from underlying dart:io import
+
+## 1.0.1
 
 ## 1.0.0
 
