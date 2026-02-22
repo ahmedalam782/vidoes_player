@@ -148,6 +148,46 @@ void main() {
         expect(cubit.state.position, const Duration(seconds: 60));
         expect(cubit.state.isFullscreen, false);
       });
+
+      test('captureStateForFullscreen returns new state and emits it', () {
+        cubit.setAutoPlay(true);
+        cubit.setMuted(true);
+
+        final capturedState =
+            cubit.captureStateForFullscreen(const Duration(seconds: 42), true);
+
+        expect(capturedState.position, const Duration(seconds: 42));
+        expect(capturedState.isPlaying, true);
+        expect(capturedState.isFullscreen, true);
+        expect(capturedState.isMuted, true);
+        expect(capturedState.autoPlay, true);
+
+        // Also verify the cubit's internal state matches
+        expect(cubit.state, capturedState);
+      });
+
+      test('restoreStateFromFullscreen works correctly', () {
+        cubit.enterFullscreen(const Duration(seconds: 5), true);
+
+        cubit.restoreStateFromFullscreen(
+          position: const Duration(seconds: 99),
+          wasPlaying: false,
+          isMuted: true,
+          autoPlay: false,
+          loop: true,
+          forceHD: false,
+          enableCaption: true,
+        );
+
+        expect(cubit.state.position, const Duration(seconds: 99));
+        expect(cubit.state.isPlaying, false);
+        expect(cubit.state.isMuted, true);
+        expect(cubit.state.isFullscreen, false);
+        expect(cubit.state.autoPlay, false);
+        expect(cubit.state.loop, true);
+        expect(cubit.state.forceHD, false);
+        expect(cubit.state.enableCaption, true);
+      });
     });
   });
 }
