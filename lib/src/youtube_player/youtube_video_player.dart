@@ -13,7 +13,7 @@ import 'models/player_config.dart';
 import 'cubit/youtube_player_cubit.dart';
 import 'widgets/player_bottom_actions.dart';
 import 'widgets/player_controls.dart';
-import 'widgets/youtube_webview_player.dart';
+import 'widgets/youtube_webview_player_export.dart';
 
 /// A widget for playing YouTube videos with full YouTube controls
 /// Similar to native YouTube app with speed, quality, captions, etc.
