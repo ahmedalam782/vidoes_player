@@ -1,5 +1,8 @@
-## 1.0.2
+## 1.0.3
 
+* Make web platform fully WASM-compatible by replacing dart:html with package:web
+
+## 1.0.2
 * Fix web platform compatibility issue from underlying dart:io import
 
 ## 1.0.1
