@@ -1,11 +1,10 @@
-// ignore_for_file: avoid_web_libraries_in_flutter, deprecated_member_use
-import 'dart:html' as html;
+import 'package:web/web.dart' as web;
 import 'dart:ui_web' as ui_web;
 import 'package:flutter/material.dart';
 
 void registerYoutubeWebIframe(String viewId, String videoId, bool autoPlay) {
   ui_web.platformViewRegistry.registerViewFactory(viewId, (int id) {
-    final iframe = html.IFrameElement()
+    final iframe = web.HTMLIFrameElement()
       ..style.border = 'none'
       ..style.width = '100%'
       ..style.height = '100%'
