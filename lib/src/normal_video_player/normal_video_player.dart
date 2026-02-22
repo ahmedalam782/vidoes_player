@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 
 import '../youtube_player/models/player_config.dart';
+import 'utils/file_utils_export.dart';
 
 class NormalVideoPlayer extends StatefulWidget {
   final String videoSource;
@@ -70,10 +70,8 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
     // Check if it's a data URL (base64)
     if (url.startsWith('data:')) return true;
 
-    // Check if it's a valid file path
     if (_useFileController) {
-      final file = File(url);
-      return file.existsSync();
+      return checkFileExists(url);
     }
 
     // Check if it's a valid URL format
@@ -143,13 +141,7 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
       );
 
       _videoPlayerController = _useFileController
-          ? VideoPlayerController.file(
-              File(_effectiveSource),
-              videoPlayerOptions: VideoPlayerOptions(
-                mixWithOthers: true,
-                allowBackgroundPlayback: true,
-              ),
-            )
+          ? getFileVideoController(_effectiveSource)
           : VideoPlayerController.networkUrl(
               Uri.parse(_effectiveSource),
               videoPlayerOptions: VideoPlayerOptions(

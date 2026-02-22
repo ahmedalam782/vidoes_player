@@ -1,5 +1,8 @@
-## 1.0.3
+## 1.0.4
 
+* Fix `NormalVideoPlayer` playback on Web not rendering (removed dart:io dependency internally)
+
+## 1.0.3
 * Make web platform fully WASM-compatible by replacing dart:html with package:web
 
 ## 1.0.2

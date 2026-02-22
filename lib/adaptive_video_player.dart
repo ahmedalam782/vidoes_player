@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'src/youtube_player/utils/player_utils.dart';
 import 'src/youtube_player/youtube_video_player.dart';
 import 'src/normal_video_player/model/video_config.dart';
-import 'src/normal_video_player/normal_video_player_export.dart';
+import 'src/normal_video_player/normal_video_player.dart';
 
 export 'src/normal_video_player/model/video_config.dart';
 export 'src/youtube_player/models/player_config.dart';
