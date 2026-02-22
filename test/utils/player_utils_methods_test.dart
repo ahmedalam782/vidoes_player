@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-import 'package:adaptive_video_player/youtube_player/utils/player_utils.dart';
+import 'package:adaptive_video_player/src/youtube_player/utils/player_utils.dart';
 
 class MockYoutubePlayerController extends Mock
     implements YoutubePlayerController {}

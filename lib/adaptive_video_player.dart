@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-import 'youtube_player/utils/player_utils.dart';
-import 'youtube_player/youtube_video_player.dart';
-import 'normal_video_player/model/video_config.dart';
-import 'normal_video_player/normal_video_player.dart';
+import 'src/youtube_player/utils/player_utils.dart';
+import 'src/youtube_player/youtube_video_player.dart';
+import 'src/normal_video_player/model/video_config.dart';
+import 'src/normal_video_player/normal_video_player_export.dart';
 
-export 'normal_video_player/model/video_config.dart';
-export 'youtube_player/models/player_config.dart';
+export 'src/normal_video_player/model/video_config.dart';
+export 'src/youtube_player/models/player_config.dart';
 
 /// Adaptive video player that detects and plays both YouTube and normal videos
 class AdaptiveVideoPlayer extends StatefulWidget {

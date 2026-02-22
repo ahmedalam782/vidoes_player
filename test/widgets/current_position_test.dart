@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart'
     hide CurrentPosition;
-import 'package:adaptive_video_player/youtube_player/widgets/current_position.dart';
+import 'package:adaptive_video_player/src/youtube_player/widgets/current_position.dart';
 
 void main() {
   group('CurrentPosition', () {

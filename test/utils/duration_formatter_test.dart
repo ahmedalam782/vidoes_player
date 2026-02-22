@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:adaptive_video_player/youtube_player/utils/duration_formatter.dart';
+import 'package:adaptive_video_player/src/youtube_player/utils/duration_formatter.dart';
 
 void main() {
   group('durationFormatter', () {
