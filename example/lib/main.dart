@@ -67,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   videoUrl: 'https://www.youtube.com/watch?v=vM2dC8OCZoY',
                   playerConfig: YouTubePlayerConfig(
                     playback: PlayerPlaybackConfig(
-                      // forceDesktopMode: true,
+                      forceDesktopMode: true,
                     ),
                     text: PlayerTextConfig(
                       invalidYoutubeUrlText: 'Invalid YouTube URL provided.',

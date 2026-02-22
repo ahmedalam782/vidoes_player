@@ -63,7 +63,7 @@ Ensure you have the `INTERNET` permission in your `android/app/src/main/AndroidM
 ```xml
 <uses-permission android:name="android.permission.INTERNET"/>
 ```
-*(Optional)* For playing `http://` (unencrypted) video URLs, also add `usesCleartextTraffic` to your `<application>` tag:
+*(Required)* For playing `http://` video URLs **AND** for using `forceDesktopMode: true` on Android, you must add `usesCleartextTraffic` to your `<application>` tag:
 ```xml
 <application
     ...
