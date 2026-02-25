@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../models/player_config.dart';
 
 /// A unified YouTube player that uses InAppWebView + local HTTP server
@@ -22,7 +23,12 @@ class YouTubeWebViewPlayer extends StatefulWidget {
     required this.config,
     this.onEnded,
     this.onReady,
+    this.onEnterFullscreen,
+    this.onExitFullscreen,
   });
+
+  final VoidCallback? onEnterFullscreen;
+  final VoidCallback? onExitFullscreen;
 
   @override
   State<YouTubeWebViewPlayer> createState() => _YouTubeWebViewPlayerState();
@@ -95,7 +101,41 @@ class _YouTubeWebViewPlayerState extends State<YouTubeWebViewPlayer> {
         mediaPlaybackRequiresUserGesture: false,
         allowsInlineMediaPlayback: true,
         isElementFullscreenEnabled: true,
+        useShouldOverrideUrlLoading: true,
+        supportMultipleWindows: true,
       ),
+      onEnterFullscreen: (controller) {
+        widget.onEnterFullscreen?.call();
+      },
+      onExitFullscreen: (controller) {
+        widget.onExitFullscreen?.call();
+      },
+      onCreateWindow: (controller, createWindowAction) async {
+        final uri = createWindowAction.request.url;
+        if (uri != null &&
+            !uri.toString().startsWith('http://127.0.0.1') &&
+            !uri.toString().startsWith('http://localhost')) {
+          if (await canLaunchUrl(uri)) {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+          }
+        }
+        return false;
+      },
+      shouldOverrideUrlLoading: (controller, navigationAction) async {
+        final uri = navigationAction.request.url;
+        if (uri != null) {
+          final urlStr = uri.toString();
+          // Redirect any non-localhost URL to the external browser
+          if (!urlStr.startsWith('http://127.0.0.1') &&
+              !urlStr.startsWith('http://localhost')) {
+            if (await canLaunchUrl(uri)) {
+              await launchUrl(uri, mode: LaunchMode.externalApplication);
+            }
+            return NavigationActionPolicy.CANCEL;
+          }
+        }
+        return NavigationActionPolicy.ALLOW;
+      },
       onWebViewCreated: (controller) {
         _webViewController = controller;
         log("YouTube WebView created");

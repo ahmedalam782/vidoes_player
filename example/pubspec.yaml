@@ -36,6 +36,8 @@ dependencies:
   cupertino_icons: ^1.0.8
   adaptive_video_player:
     path: ..
+  dart_vlc: ^0.4.0
+  flutter_vlc_player: ^7.4.4
 
 dev_dependencies:
   flutter_test:

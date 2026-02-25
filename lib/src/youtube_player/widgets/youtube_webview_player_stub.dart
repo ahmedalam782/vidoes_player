@@ -15,7 +15,12 @@ class YouTubeWebViewPlayer extends StatelessWidget {
     required this.config,
     this.onEnded,
     this.onReady,
+    this.onEnterFullscreen,
+    this.onExitFullscreen,
   });
+
+  final VoidCallback? onEnterFullscreen;
+  final VoidCallback? onExitFullscreen;
 
   @override
   Widget build(BuildContext context) {

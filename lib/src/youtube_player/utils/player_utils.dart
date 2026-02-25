@@ -448,6 +448,7 @@ class PlayerUtils {
     bool enableCaption = false,
     bool showControls = true,
     int startAt = 0,
+    bool isLive = false,
   }) {
     final bool isDesktop = !kIsWeb &&
         (defaultTargetPlatform != TargetPlatform.android &&
@@ -457,7 +458,7 @@ class PlayerUtils {
       autoPlay: autoPlay,
       mute: mute,
       loop: loop,
-      showLiveFullscreenButton: true,
+      showLiveFullscreenButton: false, // Prevents their buggy LiveBottomBar
       forceHD: isDesktop ? false : forceHD,
       enableCaption: enableCaption,
       hideControls: isDesktop ? false : !showControls,
@@ -466,6 +467,8 @@ class PlayerUtils {
       useHybridComposition:
           kIsWeb ? false : (defaultTargetPlatform == TargetPlatform.android),
       startAt: startAt,
+      isLive:
+          false, // Pass false to prevent their assertion bug (we handle live UI in our own bottomactions)
     );
   }
 
@@ -594,6 +597,7 @@ class PlayerUtils {
         enableCaption: enableCaption,
         showControls: showControls,
         startAt: startAt,
+        isLive: false,
       ),
     );
   }

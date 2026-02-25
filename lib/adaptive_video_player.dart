@@ -5,6 +5,8 @@ import 'src/youtube_player/youtube_video_player.dart';
 import 'src/normal_video_player/model/video_config.dart';
 import 'src/normal_video_player/normal_video_player.dart';
 
+export 'src/normal_video_player/adaptive_controls.dart'
+    show AdaptiveControlsBuilder, SubtitleBuilder;
 export 'src/normal_video_player/model/video_config.dart';
 export 'src/youtube_player/models/player_config.dart';
 
@@ -46,6 +48,7 @@ class _AdaptiveVideoPlayerState extends State<AdaptiveVideoPlayer> {
       return YouTubeVideoPlayer(
         videoSource: _youtubeVideoId!,
         config: widget.config.playerConfig,
+        isLive: widget.config.isLive,
       );
     }
 
@@ -54,10 +57,17 @@ class _AdaptiveVideoPlayerState extends State<AdaptiveVideoPlayer> {
       videoSource: widget.config.videoUrl,
       isFile: widget.config.isFile,
       videoBytes: widget.config.videoBytes,
+      qualities: widget.config.qualities,
+      initialQuality: widget.config.initialQuality,
+      subtitles: widget.config.subtitles,
+      initialSubtitle: widget.config.initialSubtitle,
       styling: widget.config.styling,
       messages: widget.config.messages,
       visibility: widget.config.visibility,
       playback: widget.config.playback,
+      controlsBuilder: widget.config.controlsBuilder,
+      subtitleBuilder: widget.config.subtitleBuilder,
+      onAnalyticsEvent: widget.config.onAnalyticsEvent,
     );
   }
 }

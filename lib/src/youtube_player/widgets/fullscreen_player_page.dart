@@ -16,6 +16,7 @@ class FullScreenPlayerPage extends StatefulWidget {
   final YoutubePlayerCubit cubit;
   final VoidCallback? onEnded;
   final YouTubePlayerConfig config;
+  final bool isLive;
 
   const FullScreenPlayerPage({
     super.key,
@@ -24,6 +25,7 @@ class FullScreenPlayerPage extends StatefulWidget {
     required this.startPlaying,
     required this.cubit,
     required this.config,
+    this.isLive = false,
     this.onEnded,
   });
 
@@ -365,7 +367,7 @@ class _FullScreenPlayerPageState extends State<FullScreenPlayerPage> {
                       aspectRatio: 16 / 9,
                       child: YoutubePlayer(
                         controller: _controller!,
-                        showVideoProgressIndicator: true,
+                        showVideoProgressIndicator: !widget.isLive,
                         progressIndicatorColor:
                             widget.config.style.progressBarPlayedColor,
                         progressColors: ProgressBarColors(
@@ -387,6 +389,7 @@ class _FullScreenPlayerPageState extends State<FullScreenPlayerPage> {
                           ),
                           isMuted: state.isMuted,
                           isFullscreen: true,
+                          isLive: widget.isLive,
                           showFullscreenButton: true,
                           showSettingsButton:
                               widget.config.visibility.showSettingsButton,

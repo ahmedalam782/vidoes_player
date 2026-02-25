@@ -1,18 +1,33 @@
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 
 import '../youtube_player/models/player_config.dart';
+import 'adaptive_controls.dart';
+import 'model/video_config.dart';
 import 'utils/file_utils_export.dart';
+import 'utils/subtitle_parser.dart';
 
 class NormalVideoPlayer extends StatefulWidget {
   final String videoSource;
   final bool isFile;
   final Uint8List? videoBytes;
+  final bool isLive;
+
+  /// External list of qualities / sources for resolution picker
+  final List<VideoQuality>? qualities;
+
+  /// Initial quality if qualities list is provided
+  final VideoQuality? initialQuality;
+
+  /// External list of subtitle tracks
+  final List<SubtitleTrack>? subtitles;
+
+  /// Initial subtitle track to activate
+  final SubtitleTrack? initialSubtitle;
 
   /// Styling configuration for the video player
   final PlayerStyleConfig? styling;
@@ -26,15 +41,33 @@ class NormalVideoPlayer extends StatefulWidget {
   /// Playback configuration for the video player
   final PlayerPlaybackConfig? playback;
 
+  /// Custom ui builder for rendering over the video
+  final AdaptiveControlsBuilder? controlsBuilder;
+
+  /// Custom builder for subtitles layer
+  final SubtitleBuilder? subtitleBuilder;
+
+  /// Analytics hook for external tracking of video events
+  final void Function(String event, Map<String, dynamic> data)?
+      onAnalyticsEvent;
+
   const NormalVideoPlayer({
     super.key,
     required this.videoSource,
     this.isFile = false,
+    this.isLive = false,
     this.videoBytes,
+    this.qualities,
+    this.initialQuality,
+    this.subtitles,
+    this.initialSubtitle,
     this.styling,
     this.messages,
     this.visibility,
     this.playback,
+    this.controlsBuilder,
+    this.subtitleBuilder,
+    this.onAnalyticsEvent,
   });
 
   @override
@@ -43,24 +76,92 @@ class NormalVideoPlayer extends StatefulWidget {
 
 class NormalVideoPlayerState extends State<NormalVideoPlayer> {
   VideoPlayerController? _videoPlayerController;
-  ChewieController? _chewieController;
+  bool _isInitialized = false;
   bool _hasError = false;
   String _errorMessage = '';
   late final bool _hasInMemoryData;
   late final bool _useFileController;
-  late final String _effectiveSource;
+  late String _effectiveSource;
+  VideoQuality? _currentQuality;
+  SubtitleTrack? _currentSubtitleTrack;
+  List<SubtitleItem> _parsedSubtitles = [];
+
+  bool get _effectiveIsLive => _currentQuality?.isLive ?? widget.isLive;
 
   @override
   void initState() {
     super.initState();
+    _currentQuality = widget.initialQuality ?? widget.qualities?.firstOrNull;
+    _currentSubtitleTrack = widget.initialSubtitle;
     _hasInMemoryData = widget.videoBytes != null;
-    _effectiveSource = _hasInMemoryData
-        ? 'data:video/mp4;base64,${base64Encode(widget.videoBytes!)}'
-        : widget.isFile
-            ? widget.videoSource
-            : widget.videoSource;
+    _updateEffectiveSource();
     _useFileController = widget.isFile && !_hasInMemoryData;
     _initializeVideo();
+    _loadSubtitleTrack();
+  }
+
+  Future<void> _loadSubtitleTrack() async {
+    if (_currentSubtitleTrack == null) {
+      if (mounted) setState(() => _parsedSubtitles = []);
+      return;
+    }
+
+    try {
+      String subtitleContent = '';
+      if (_currentSubtitleTrack!.content != null &&
+          _currentSubtitleTrack!.content!.isNotEmpty) {
+        subtitleContent = _currentSubtitleTrack!.content!;
+      } else if (_currentSubtitleTrack!.fetcher != null) {
+        subtitleContent = await _currentSubtitleTrack!.fetcher!();
+      }
+
+      if (mounted) {
+        setState(() {
+          _parsedSubtitles = SubtitleParser.parse(subtitleContent);
+        });
+      }
+    } catch (e) {
+      log('Error parsing subtitles: $e');
+    }
+  }
+
+  void _changeSubtitleTrack(SubtitleTrack? newTrack) {
+    if (_currentSubtitleTrack == newTrack) return;
+    setState(() {
+      _currentSubtitleTrack = newTrack;
+      _parsedSubtitles = []; // clear while loading
+    });
+    _loadSubtitleTrack();
+  }
+
+  void _updateEffectiveSource() {
+    if (_hasInMemoryData) {
+      _effectiveSource =
+          'data:video/mp4;base64,${base64Encode(widget.videoBytes!)}';
+    } else if (_currentQuality != null) {
+      _effectiveSource = _currentQuality!.url;
+    } else {
+      _effectiveSource = widget.videoSource;
+    }
+  }
+
+  Future<void> _changeQuality(VideoQuality newQuality) async {
+    if (_currentQuality == newQuality || !mounted) return;
+
+    final currentPosition =
+        _videoPlayerController?.value.position ?? Duration.zero;
+    final isPlaying = _videoPlayerController?.value.isPlaying ?? false;
+
+    // Cleanup old controller
+    await _videoPlayerController?.dispose();
+
+    setState(() {
+      _isInitialized = false;
+      _currentQuality = newQuality;
+      _updateEffectiveSource();
+    });
+
+    await _initializeVideo(startAt: currentPosition, wasPlaying: isPlaying);
   }
 
   /// Validates if the URL is a valid video source
@@ -94,6 +195,7 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
         '.flv',
         '.wmv',
         '.m9v',
+        '.m3u8', // Added HLS support
       ];
 
       // If URL has extension, check if it's a video extension
@@ -109,7 +211,8 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
     }
   }
 
-  Future<void> _initializeVideo() async {
+  Future<void> _initializeVideo(
+      {Duration? startAt, bool wasPlaying = false}) async {
     try {
       // Validate URL first
       if (!_isValidVideoUrl(_effectiveSource)) {
@@ -140,96 +243,33 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
             : 'Playing video from: $_effectiveSource',
       );
 
+      final isHls = _effectiveSource.contains('.m3u8');
+      final formatHint = isHls ? VideoFormat.hls : null;
+
       _videoPlayerController = _useFileController
           ? getFileVideoController(_effectiveSource)
           : VideoPlayerController.networkUrl(
               Uri.parse(_effectiveSource),
-              videoPlayerOptions: VideoPlayerOptions(
-                mixWithOthers: true,
-                allowBackgroundPlayback: true,
-              ),
+              formatHint: formatHint,
             );
 
       await _videoPlayerController!.initialize();
+
+      if (startAt != null) {
+        await _videoPlayerController!.seekTo(startAt);
+      }
+
+      if (widget.playback?.loop ?? false) {
+        _videoPlayerController!.setLooping(true);
+      }
+
+      if (wasPlaying || (widget.playback?.autoPlay ?? false)) {
+        _videoPlayerController!.play();
+      }
+
       if (mounted) {
         setState(() {
-          _chewieController = ChewieController(
-            videoPlayerController: _videoPlayerController!,
-            autoPlay: widget.playback?.autoPlay ?? false,
-            looping: widget.playback?.loop ?? false,
-            showControls: widget.visibility?.showControls ?? true,
-            allowFullScreen: widget.visibility?.showFullscreenButton ?? true,
-            allowedScreenSleep: false,
-            showControlsOnInitialize: true,
-            controlsSafeAreaMinimum: EdgeInsets.zero,
-            hideControlsTimer: const Duration(seconds: 3),
-            deviceOrientationsAfterFullScreen: [
-              DeviceOrientation.portraitUp,
-              DeviceOrientation.portraitDown,
-            ],
-            deviceOrientationsOnEnterFullScreen: [
-              DeviceOrientation.landscapeLeft,
-              DeviceOrientation.landscapeRight,
-            ],
-            systemOverlaysAfterFullScreen: [
-              SystemUiOverlay.top,
-              SystemUiOverlay.bottom,
-            ],
-            materialProgressColors: ChewieProgressColors(
-              playedColor: widget.styling?.progressBarPlayedColor ??
-                  const Color.fromRGBO(255, 0, 0, 0.7),
-              handleColor: widget.styling?.progressBarHandleColor ??
-                  const Color.fromRGBO(200, 200, 200, 1.0),
-              bufferedColor: widget.styling?.progressBarPlayedColor.withValues(
-                    alpha: 0.3,
-                  ) ??
-                  const Color.fromRGBO(30, 30, 200, 0.2),
-              backgroundColor: Colors.white.withValues(alpha: 0.3),
-            ),
-            routePageBuilder:
-                (context, animation, secondaryAnimation, provider) {
-              return Directionality(
-                textDirection: TextDirection.ltr,
-                child: AnimatedBuilder(
-                  animation: animation,
-                  builder: (context, child) {
-                    return Scaffold(
-                      backgroundColor: Colors.black,
-                      body: Center(child: provider),
-                    );
-                  },
-                ),
-              );
-            },
-            placeholder: Center(
-              child: CircularProgressIndicator(
-                color: widget.styling?.loadingIndicatorColor,
-                strokeCap: StrokeCap.round,
-              ),
-            ),
-            errorBuilder: (context, errorMessage) => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.error_outline,
-                    color: widget.styling?.errorIconColor,
-                    size: 48,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    widget.messages?.videoUnavailableText ??
-                        'Video Unavailable',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: widget.styling?.textColor,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
+          _isInitialized = true;
         });
       }
     } catch (e) {
@@ -260,7 +300,6 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
   @override
   void dispose() {
     _videoPlayerController?.dispose();
-    _chewieController?.dispose();
     super.dispose();
   }
 
@@ -307,7 +346,7 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
       );
     }
 
-    if (_chewieController == null) {
+    if (!_isInitialized) {
       return Container(
         decoration: BoxDecoration(
           color: widget.styling?.backgroundColor ?? Colors.black,
@@ -334,7 +373,23 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
           aspectRatio: _videoPlayerController!.value.isInitialized
               ? _videoPlayerController!.value.aspectRatio
               : 16 / 9,
-          child: Chewie(controller: _chewieController!),
+          child: BaseAdaptiveVideoPlayer(
+            controller: _videoPlayerController!,
+            showControls: widget.visibility?.showControls ?? true,
+            isFullScreen: false,
+            isLive: _effectiveIsLive,
+            controlsBuilder: widget.controlsBuilder,
+            subtitleBuilder: widget.subtitleBuilder,
+            styling: widget.styling,
+            onAnalyticsEvent: widget.onAnalyticsEvent,
+            qualities: widget.qualities,
+            currentQuality: _currentQuality,
+            onQualitySelected: _changeQuality,
+            subtitles: widget.subtitles,
+            currentSubtitleTrack: _currentSubtitleTrack,
+            onSubtitleSelected: _changeSubtitleTrack,
+            parsedSubtitles: _parsedSubtitles,
+          ),
         ),
       ),
     );

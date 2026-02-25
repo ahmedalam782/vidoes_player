@@ -27,6 +27,9 @@ class YouTubeVideoPlayer extends StatefulWidget {
   /// Complete player configuration
   final YouTubePlayerConfig config;
 
+  /// Whether the video is a live stream
+  final bool isLive;
+
   /// Callback when the video ends
   final VoidCallback? onEnded;
 
@@ -34,6 +37,7 @@ class YouTubeVideoPlayer extends StatefulWidget {
     super.key,
     required this.videoSource,
     this.config = const YouTubePlayerConfig(),
+    this.isLive = false,
     this.onEnded,
   });
 
@@ -53,6 +57,7 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
   bool _hasRestoredPosition = false;
   bool _videoEnded = false;
   String? _webIframeId;
+  final GlobalKey _desktopWebViewKey = GlobalKey();
 
   YouTubePlayerConfig get _cfg => widget.config;
   PlayerCubitState get _state => _cubit.state;
@@ -151,6 +156,7 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
           enableCaption: _state.enableCaption,
           showControls: _cfg.visibility.showControls,
           startAt: startAtSeconds,
+          isLive: widget.isLive,
         ),
       );
 
@@ -218,6 +224,58 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
   }
 
   Future<void> _openFullScreen() async {
+    if (_useDesktopPlayer) {
+      if (!mounted) return;
+      setState(() {
+        _isInFullscreen = true;
+      });
+
+      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
+      if (mounted) {
+        await Navigator.of(context).push(
+          PageRouteBuilder(
+            opaque: true,
+            pageBuilder: (context, animation, secondaryAnimation) {
+              return Scaffold(
+                backgroundColor: Colors.black,
+                body: SafeArea(
+                  child: Center(
+                    child: YouTubeWebViewPlayer(
+                      key: _desktopWebViewKey,
+                      videoId: _videoId!,
+                      config: _cfg,
+                      onEnded: () => widget.onEnded?.call(),
+                      onEnterFullscreen: () {},
+                      onExitFullscreen: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ),
+                ),
+              );
+            },
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(opacity: animation, child: child);
+            },
+          ),
+        );
+      }
+
+      await SystemChrome.setEnabledSystemUIMode(
+        SystemUiMode.manual,
+        overlays: SystemUiOverlay.values,
+      );
+
+      if (mounted) {
+        setState(() {
+          _isInFullscreen = false;
+        });
+      }
+      return;
+    }
+
     final controller = _controller;
     if (controller == null || _isControllerDisposed) return;
 
@@ -248,6 +306,7 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
             cubit: _cubit,
             onEnded: widget.onEnded,
             config: _cfg,
+            isLive: widget.isLive,
           );
         },
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -530,17 +589,30 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
                     buildYoutubeWebIframe(_webIframeId!)
                   // Desktop or forced: InAppWebView + localhost server
                   else if (_useDesktopPlayer)
-                    YouTubeWebViewPlayer(
-                      videoId: _videoId!,
-                      config: _cfg,
-                      onReady: () => log('Desktop YouTube player ready'),
-                      onEnded: () => widget.onEnded?.call(),
-                    )
+                    _isInFullscreen
+                        ? const SizedBox()
+                        : YouTubeWebViewPlayer(
+                            key: _desktopWebViewKey,
+                            videoId: _videoId!,
+                            config: _cfg,
+                            onReady: () => log('Desktop YouTube player ready'),
+                            onEnded: () => widget.onEnded?.call(),
+                            onEnterFullscreen: () {
+                              if (!_isInFullscreen && mounted) {
+                                _openFullScreen();
+                              }
+                            },
+                            onExitFullscreen: () {
+                              if (_isInFullscreen && mounted) {
+                                Navigator.of(context).pop();
+                              }
+                            },
+                          )
                   // Mobile: Native youtube_player_flutter
                   else
                     YoutubePlayer(
                       controller: controller!,
-                      showVideoProgressIndicator: true,
+                      showVideoProgressIndicator: !widget.isLive,
                       progressIndicatorColor: _cfg.style.progressBarPlayedColor,
                       progressColors: ProgressBarColors(
                         playedColor: _cfg.style.progressBarPlayedColor,
@@ -558,6 +630,7 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
                         ),
                         isMuted: state.isMuted,
                         isFullscreen: false,
+                        isLive: widget.isLive,
                         showFullscreenButton:
                             _cfg.visibility.showFullscreenButton,
                         showSettingsButton: _cfg.visibility.showSettingsButton,

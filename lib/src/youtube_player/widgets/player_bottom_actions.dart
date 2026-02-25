@@ -125,30 +125,44 @@ class PlayerBottomActionsBuilder {
     bool isFullscreen = false,
     bool showFullscreenButton = true,
     bool showSettingsButton = false,
+    bool isLive = false,
     required VoidCallback onFullscreenTap,
     required VoidCallback onMuteTap,
     VoidCallback? onSettingsTap,
   }) {
     return [
-      if (showFullscreenButton)
-        FullscreenButton(
-          onTap: onFullscreenTap,
-          iconColor: config.iconColor,
-          isFullscreen: isFullscreen,
+      if (isLive)
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+          decoration: BoxDecoration(
+            color: Colors.red,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: const Text(
+            'LIVE',
+            style: TextStyle(
+                color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+          ),
         ),
-      const CurrentPosition(),
-      TimeSeparator(
-        textStyle: config.timeTextStyle,
-        textColor: config.textColor,
-      ),
-      const RemainingDuration(),
-      ProgressBar(
-        isExpanded: true,
-        colors: ProgressBarColors(
-          playedColor: config.progressBarPlayedColor,
-          handleColor: config.progressBarHandleColor,
+      if (!isLive) ...[
+        const CurrentPosition(),
+        TimeSeparator(
+          textStyle: config.timeTextStyle,
+          textColor: config.textColor,
         ),
-      ),
+        const RemainingDuration(),
+      ],
+      if (!isLive)
+        ProgressBar(
+          isExpanded: true,
+          colors: ProgressBarColors(
+            playedColor: config.progressBarPlayedColor,
+            handleColor: config.progressBarHandleColor,
+          ),
+        )
+      else
+        const Spacer(),
       MuteButton(
         onTap: onMuteTap,
         iconColor: config.iconColor,
@@ -156,6 +170,12 @@ class PlayerBottomActionsBuilder {
       ),
       if (showSettingsButton && onSettingsTap != null)
         SettingsButton(onTap: onSettingsTap, iconColor: config.iconColor),
+      if (showFullscreenButton)
+        FullscreenButton(
+          onTap: onFullscreenTap,
+          iconColor: config.iconColor,
+          isFullscreen: isFullscreen,
+        ),
     ];
   }
 }

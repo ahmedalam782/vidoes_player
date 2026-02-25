@@ -3,7 +3,9 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  dart_vlc
   flutter_inappwebview_windows
+  url_launcher_windows
   video_player_win
 )
 
