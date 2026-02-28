@@ -150,7 +150,9 @@ class _BaseAdaptiveVideoPlayerState extends State<BaseAdaptiveVideoPlayer> {
         widget.controller.seekTo(currentPosition + const Duration(seconds: 10));
       } else {
         _seekDirection = -1;
-        widget.controller.seekTo(currentPosition - const Duration(seconds: 10));
+        final newPosition = currentPosition - const Duration(seconds: 10);
+        widget.controller
+            .seekTo(newPosition.isNegative ? Duration.zero : newPosition);
       }
     });
 
