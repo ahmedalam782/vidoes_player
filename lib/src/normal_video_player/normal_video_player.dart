@@ -90,6 +90,10 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
   SubtitleTrack? _currentSubtitleTrack;
   List<SubtitleItem> _parsedSubtitles = [];
 
+  bool _isInFullscreen = false;
+  OverlayEntry? _fullscreenOverlay;
+  final GlobalKey _basePlayerKey = GlobalKey();
+
   bool get _effectiveIsLive => _currentQuality?.isLive ?? widget.isLive;
 
   @override
@@ -259,7 +263,10 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
 
       await _videoPlayerController!.initialize();
 
-      if (startAt != null) {
+      if (startAt != null &&
+          !_effectiveIsLive &&
+          !startAt.isNegative &&
+          startAt.inMilliseconds > 0) {
         await _videoPlayerController!.seekTo(startAt);
       }
 
@@ -303,6 +310,7 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
 
   @override
   void dispose() {
+    _closeFullscreen();
     _videoPlayerController?.dispose();
     super.dispose();
   }
@@ -377,26 +385,81 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
           aspectRatio: _videoPlayerController!.value.isInitialized
               ? _videoPlayerController!.value.aspectRatio
               : 16 / 9,
-          child: BaseAdaptiveVideoPlayer(
-            controller: _videoPlayerController!,
-            showControls: widget.visibility?.showControls ?? true,
-            isFullScreen: false,
-            isLive: _effectiveIsLive,
-            controlsBuilder: widget.controlsBuilder,
-            subtitleBuilder: widget.subtitleBuilder,
-            styling: widget.styling,
-            onAnalyticsEvent: widget.onAnalyticsEvent,
-            qualities: widget.qualities,
-            currentQuality: _currentQuality,
-            onQualitySelected: _changeQuality,
-            subtitles: widget.subtitles,
-            currentSubtitleTrack: _currentSubtitleTrack,
-            onSubtitleSelected: _changeSubtitleTrack,
-            parsedSubtitles: _parsedSubtitles,
-            viewerCount: widget.viewerCount,
-          ),
+          child: _isInFullscreen
+              ? const SizedBox()
+              : _buildBasePlayer(isFullScreen: false),
         ),
       ),
+    );
+  }
+
+  void _openFullscreen() async {
+    if (_isInFullscreen) return;
+
+    _fullscreenOverlay = OverlayEntry(
+      builder: (context) {
+        return Scaffold(
+          backgroundColor: Colors.black,
+          body: Center(
+            child: _buildBasePlayer(isFullScreen: true),
+          ),
+        );
+      },
+    );
+
+    setState(() {
+      _isInFullscreen = true;
+    });
+
+    Overlay.of(context).insert(_fullscreenOverlay!);
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
+
+  void _closeFullscreen() async {
+    if (!_isInFullscreen || _fullscreenOverlay == null) return;
+
+    _fullscreenOverlay?.remove();
+    _fullscreenOverlay?.dispose();
+    _fullscreenOverlay = null;
+
+    setState(() {
+      _isInFullscreen = false;
+    });
+
+    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    await SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual,
+      overlays: SystemUiOverlay.values,
+    );
+  }
+
+  Widget _buildBasePlayer({bool isFullScreen = false}) {
+    return BaseAdaptiveVideoPlayer(
+      key: _basePlayerKey,
+      controller: _videoPlayerController!,
+      showControls: widget.visibility?.showControls ?? true,
+      isFullScreen: isFullScreen,
+      isLive: _effectiveIsLive,
+      controlsBuilder: widget.controlsBuilder,
+      subtitleBuilder: widget.subtitleBuilder,
+      styling: widget.styling,
+      onAnalyticsEvent: widget.onAnalyticsEvent,
+      qualities: widget.qualities,
+      currentQuality: _currentQuality,
+      onQualitySelected: _changeQuality,
+      subtitles: widget.subtitles,
+      currentSubtitleTrack: _currentSubtitleTrack,
+      onSubtitleSelected: _changeSubtitleTrack,
+      parsedSubtitles: _parsedSubtitles,
+      viewerCount: widget.viewerCount,
+      onEnterFullscreen: _openFullscreen,
+      onExitFullscreen: _closeFullscreen,
     );
   }
 

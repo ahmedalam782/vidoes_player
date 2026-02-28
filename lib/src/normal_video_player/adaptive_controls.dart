@@ -29,6 +29,8 @@ class BaseAdaptiveVideoPlayer extends StatefulWidget {
   final List<SubtitleItem>? parsedSubtitles;
   final bool isLive;
   final String? viewerCount;
+  final VoidCallback? onEnterFullscreen;
+  final VoidCallback? onExitFullscreen;
 
   const BaseAdaptiveVideoPlayer({
     super.key,
@@ -48,6 +50,8 @@ class BaseAdaptiveVideoPlayer extends StatefulWidget {
     this.parsedSubtitles,
     this.isLive = false,
     this.viewerCount,
+    this.onEnterFullscreen,
+    this.onExitFullscreen,
   });
 
   @override
@@ -139,6 +143,8 @@ class _BaseAdaptiveVideoPlayerState extends State<BaseAdaptiveVideoPlayer> {
   }
 
   void _handleDoubleTap(TapDownDetails details) {
+    if (widget.isLive) return;
+
     final width = MediaQuery.of(context).size.width;
     final position = details.globalPosition.dx;
     final currentPosition = widget.controller.value.position;
@@ -304,6 +310,8 @@ class _BaseAdaptiveVideoPlayerState extends State<BaseAdaptiveVideoPlayer> {
                         subtitleBuilder: widget.subtitleBuilder,
                         isLive: widget.isLive,
                         viewerCount: widget.viewerCount,
+                        onEnterFullscreen: widget.onEnterFullscreen,
+                        onExitFullscreen: widget.onExitFullscreen,
                       ),
               ),
             ),
@@ -330,6 +338,8 @@ class AdaptiveControlsLayer extends StatelessWidget {
   final SubtitleBuilder? subtitleBuilder;
   final bool isLive;
   final String? viewerCount;
+  final VoidCallback? onEnterFullscreen;
+  final VoidCallback? onExitFullscreen;
 
   const AdaptiveControlsLayer({
     super.key,
@@ -348,6 +358,8 @@ class AdaptiveControlsLayer extends StatelessWidget {
     this.subtitleBuilder,
     this.isLive = false,
     this.viewerCount,
+    this.onEnterFullscreen,
+    this.onExitFullscreen,
   });
 
   @override
@@ -823,28 +835,9 @@ class AdaptiveControlsLayer extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: () {
         if (isFullScreen) {
-          Navigator.pop(context);
+          onExitFullscreen?.call();
         } else {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => FullscreenPlayer(
-                controller: controller,
-                styling: styling,
-                onAnalyticsEvent: onAnalyticsEvent,
-                controlsBuilder: controlsBuilder,
-                subtitleBuilder: subtitleBuilder,
-                qualities: qualities,
-                currentQuality: currentQuality,
-                onQualitySelected: onQualitySelected,
-                subtitles: subtitles,
-                currentSubtitleTrack: currentSubtitleTrack,
-                onSubtitleSelected: onSubtitleSelected,
-                parsedSubtitles: parsedSubtitles,
-                isLive: isLive,
-              ),
-            ),
-          );
+          onEnterFullscreen?.call();
         }
       },
       child: Padding(
@@ -853,83 +846,6 @@ class AdaptiveControlsLayer extends StatelessWidget {
           isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen,
           color: styling?.iconColor ?? Colors.white,
           size: 18,
-        ),
-      ),
-    );
-  }
-}
-
-class FullscreenPlayer extends StatefulWidget {
-  final VideoPlayerController controller;
-  final AdaptiveControlsBuilder? controlsBuilder;
-  final SubtitleBuilder? subtitleBuilder;
-  final PlayerStyleConfig? styling;
-  final void Function(String event, Map<String, dynamic> data)?
-      onAnalyticsEvent;
-  final List<VideoQuality>? qualities;
-  final VideoQuality? currentQuality;
-  final void Function(VideoQuality)? onQualitySelected;
-  final List<SubtitleTrack>? subtitles;
-  final SubtitleTrack? currentSubtitleTrack;
-  final void Function(SubtitleTrack?)? onSubtitleSelected;
-  final List<SubtitleItem>? parsedSubtitles;
-  final bool isLive;
-
-  const FullscreenPlayer({
-    super.key,
-    required this.controller,
-    this.controlsBuilder,
-    this.subtitleBuilder,
-    this.styling,
-    this.onAnalyticsEvent,
-    this.qualities,
-    this.currentQuality,
-    this.onQualitySelected,
-    this.subtitles,
-    this.currentSubtitleTrack,
-    this.onSubtitleSelected,
-    this.parsedSubtitles,
-    this.isLive = false,
-  });
-
-  @override
-  State<FullscreenPlayer> createState() => _FullscreenPlayerState();
-}
-
-class _FullscreenPlayerState extends State<FullscreenPlayer> {
-  @override
-  void initState() {
-    super.initState();
-    // In a real app, you would set preferred orientations to landscape here
-  }
-
-  @override
-  void dispose() {
-    // Restore preferred orientations
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Center(
-        child: BaseAdaptiveVideoPlayer(
-          controller: widget.controller,
-          showControls: true,
-          isFullScreen: true,
-          controlsBuilder: widget.controlsBuilder,
-          subtitleBuilder: widget.subtitleBuilder,
-          styling: widget.styling,
-          onAnalyticsEvent: widget.onAnalyticsEvent,
-          qualities: widget.qualities,
-          currentQuality: widget.currentQuality,
-          onQualitySelected: widget.onQualitySelected,
-          subtitles: widget.subtitles,
-          currentSubtitleTrack: widget.currentSubtitleTrack,
-          onSubtitleSelected: widget.onSubtitleSelected,
-          parsedSubtitles: widget.parsedSubtitles,
-          isLive: widget.isLive,
         ),
       ),
     );
