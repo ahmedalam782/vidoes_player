@@ -1,27 +1,42 @@
+## 1.1.0
+
+- **Major Feature:** Added Live Stream support with a dynamic "LIVE" indicator and adjustable Viewer Count (`isLive`, `viewerCount`).
+- **Major Feature:** Added Quality Selection (Resolution/source picker) for dynamic MP4/HLS stream switching.
+- **Major Feature:** Added Subtitle/CC Support parsing (SRT/VTT formats).
+- **Major Feature:** Externalizing Custom UI Builders (`controlsBuilder`, `subtitleBuilder`) for complete custom overlay creation.
+- **Enhancement:** Implemented Safe External Link Handling (Now opens YouTube external URLs like logos in the system browser securely rather than breaking the player).
+- **Refactoring:** Removed the heavy `chewie` dependency out completely and engineered a fully integrated and adaptive built-in custom video playback control logic.
+- **Refactoring:** Replaced `dart:html` with `package:web` completely, making the package **100% WASM ready** for advanced Web platform outputs.
+- **Documentation:** Added a comprehensive Flutter example application demonstrating MP4 and YouTube video playback, and updated README instructions for Android.
+
 ## 1.0.4
 
-* Fix `NormalVideoPlayer` playback on Web not rendering (removed dart:io dependency internally)
+- Fix `NormalVideoPlayer` playback on Web not rendering (removed dart:io dependency internally)
 
 ## 1.0.3
-* Make web platform fully WASM-compatible by replacing dart:html with package:web
+
+- Make web platform fully WASM-compatible by replacing dart:html with package:web
 
 ## 1.0.2
-* Fix web platform compatibility issue from underlying dart:io import
+
+- Fix web platform compatibility issue from underlying dart:io import
 
 ## 1.0.1
 
+- Enhanced platform architecture, fixed displays, and updated utilities and test dependencies
+
 ## 1.0.0
 
-* Initial release
-* Adaptive video player with automatic YouTube/direct video detection
-* YouTube player with native controls on mobile (Android/iOS)
-* YouTube player with InAppWebView + localhost server on Windows Desktop (fixes Error 153)
-* YouTube player with HTML iframe on Web
-* Normal video player powered by Chewie (MP4, MOV, AVI, MKV, WebM, etc.)
-* Support for network URLs, local files, and in-memory video bytes
-* Customizable player styling, text labels, and control visibility
-* BLoC/Cubit state management
-* Fullscreen mode with state preservation
-* Settings panel (auto-play, loop, force HD, captions, mute)
-* Seek forward/backward controls on mobile
-* Cross-platform support: Android, iOS, Windows, Web
+- Initial release
+- Adaptive video player with automatic YouTube/direct video detection
+- YouTube player with native controls on mobile (Android/iOS)
+- YouTube player with InAppWebView + localhost server on Windows Desktop (fixes Error 153)
+- YouTube player with HTML iframe on Web
+- Normal video player powered by Chewie (MP4, MOV, AVI, MKV, WebM, etc.)
+- Support for network URLs, local files, and in-memory video bytes
+- Customizable player styling, text labels, and control visibility
+- BLoC/Cubit state management
+- Fullscreen mode with state preservation
+- Settings panel (auto-play, loop, force HD, captions, mute)
+- Seek forward/backward controls on mobile
+- Cross-platform support: Android, iOS, Windows, Web

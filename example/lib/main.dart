@@ -55,7 +55,7 @@ class _MyHomePageState extends State<MyHomePage> {
             'Quality Picker & HLS Stream',
             VideoConfig(
               videoUrl:
-                  'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8',
+                  'https://www.mp3quran.net/uploads/videos/group1_pbuh/maher.mp4',
               subtitles: [
                 const SubtitleTrack(
                   id: 'en',
@@ -101,23 +101,23 @@ It shows how subtitles overlay on video.
                 const VideoQuality(
                   title: 'Auto (HLS)',
                   url:
-                      'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8',
+                      'https://upload.mp3quran.net/group1_pbuh/maher.mp4',
                 ),
                 const VideoQuality(
                   title: 'HD',
                   url:
-                      'https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4',
+                      'https://upload.mp3quran.net/group1_pbuh/maher.mp4',
                 ),
                 const VideoQuality(
                   title: 'SD',
                   url:
-                      'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4',
+                      'https://upload.mp3quran.net/group1_pbuh/maher.mp4',
                 ),
               ],
               initialQuality: const VideoQuality(
                 title: 'Auto (HLS)',
                 url:
-                    'https://devstreaming-cdn.apple.com/videos/streaming/examples/img_bipbop_adv_example_fmp4/master.m3u8',
+                    'https://upload.mp3quran.net/group1_pbuh/maher.mp4',
               ),
               onAnalyticsEvent: (event, data) {
                 debugPrint('Analytics: $event - Data: $data');
@@ -130,13 +130,13 @@ It shows how subtitles overlay on video.
             const VideoConfig(
               // Here is the non-live MP4 stream
               videoUrl:
-                  'https://www.mp3quran.net/uploads/videos/group1_pbuh/maher.mp4',
+                  'https://upload.mp3quran.net/group1_pbuh/maher.mp4',
               viewerCount: '93k VIEWERS', // Demonstration of the viewer count!
               qualities: [
                 VideoQuality(
                   title: 'Recorded (MP4)',
                   url:
-                      'https://www.mp3quran.net/uploads/videos/group1_pbuh/maher.mp4',
+                      'https://upload.mp3quran.net/group1_pbuh/maher.mp4',
                   isLive: false,
                 ),
                 VideoQuality(
@@ -177,7 +177,7 @@ It shows how subtitles overlay on video.
             'YouTube Live Stream',
             const VideoConfig(
               // Example: YouTube live stream provided by user
-              videoUrl: 'https://www.youtube.com/watch?v=NMiB-PBLyxk',
+              videoUrl: 'https://www.youtube.com/watch?v=81x2EKtlklU',
               isLive:
                   true, // This enables the special YouTube Live controls/ui hiding
             ),

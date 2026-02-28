@@ -1,6 +1,8 @@
-# 🎥 Videos Player
+# 🎥 Adaptive Video Player
 
-A comprehensive Flutter video player package that seamlessly handles both **YouTube videos** and **direct video URLs** with adaptive player selection. Works on **ALL Platforms: Android, iOS, macOS, Windows, Linux, and Web**.
+**The only Flutter video player that supports YouTube + Direct videos on ALL platforms with one widget.**
+
+A comprehensive Flutter video player package that seamlessly handles both **YouTube videos** and **direct video URLs** with adaptive player selection. Works beautifully on **Android, iOS, macOS, Windows, Linux, and Web**.
 
 [![pub package](https://img.shields.io/pub/v/adaptive_video_player.svg)](https://pub.dev/packages/adaptive_video_player)
 [![Flutter](https://img.shields.io/badge/Flutter-3.1.0+-02569B?logo=flutter)](https://flutter.dev)
@@ -9,14 +11,30 @@ A comprehensive Flutter video player package that seamlessly handles both **YouT
 
 ---
 
+## ⚡ 10-Second Quick Start
+
+```dart
+AdaptiveVideoPlayer(
+  config: VideoConfig(
+    videoUrl: "https://youtu.be/VIDEO_ID",
+  ),
+);
+```
+
+_(Just drop it in and it automatically adapts to YouTube or direct MP4/HLS streams!)_
+
+---
+
 ## ✨ Features
 
 ### 🎬 Adaptive Video Player
+
 - **Smart Detection** — Automatically detects YouTube vs direct video URLs
 - **Unified API** — Single `AdaptiveVideoPlayer` widget for all video types
 - **Cross-Platform** — Runs beautifully on **Android, iOS, macOS, Windows, Linux, and Web**!
 
 ### 📺 YouTube Player
+
 - Full YouTube video support with native-like experience
 - Custom controls on mobile (seek, settings, fullscreen)
 - YouTube native controls on Desktop & Web
@@ -24,22 +42,43 @@ A comprehensive Flutter video player package that seamlessly handles both **YouT
 - Force Desktop Mode on mobile (`forceDesktopMode: true` to use WebViews on Android/iOS)
 - Settings panel with runtime toggles
 - Fullscreen mode with state preservation
+- **Safe External Link Handling** (Opens YouTube external URLs in system browser)
+- **Live Stream Support** with "LIVE" indicator and Viewer Count
 
 ### 🎞️ Normal Video Player
+
 - Supports MP4, MOV, AVI, MKV, WebM, M4V, 3GP, and more
 - Network streaming, local file, and in-memory bytes playback
-- Powered by Chewie with advanced controls
+- Built-in advanced adaptive controls
 - Error handling with customizable messages
+- **Quality Selection** (Resolution/source picker)
+- **Subtitle/CC Support** (SRT/VTT formats)
+- **Custom UI Builders** (`controlsBuilder`, `subtitleBuilder`)
+
+---
+
+## 🆚 Why Adaptive Video Player?
+
+Here is how `adaptive_video_player` compares to other popular video packages:
+
+| Feature                  | `adaptive_video_player` | `youtube_player_flutter` | `chewie` | `video_player` |
+| ------------------------ | ----------------------- | ------------------------ | -------- | -------------- |
+| **YouTube + MP4 URLs**   | ✅                      | ❌                       | ❌       | ❌             |
+| **Desktop Support**      | ✅                      | ❌                       | ⚠️       | ⚠️             |
+| **Live Stream Support**  | ✅                      | ❌                       | ❌       | ❌             |
+| **Unified API**          | ✅                      | ❌                       | ❌       | ❌             |
+| **Quality Selection**    | ✅                      | ❌                       | ❌       | ❌             |
+| **External Link Safety** | ✅                      | ❌                       | ❌       | ❌             |
 
 ---
 
 ## 🖥️ Platform-Specific YouTube Behavior
 
-| Platform | Engine | Controls |
-|----------|--------|----------|
-| **Android / iOS** | `youtube_player_flutter` | Custom Flutter controls (seek, settings, fullscreen). Can be forced to Desktop Mode. |
-| **macOS / Windows / Linux** | `InAppWebView` + localhost server | YouTube native controls |
-| **Web** | HTML iframe (`dart:html`) | YouTube native controls |
+| Platform                    | Engine                            | Controls                                                                             |
+| --------------------------- | --------------------------------- | ------------------------------------------------------------------------------------ |
+| **Android / iOS**           | `youtube_player_flutter`          | Custom Flutter controls (seek, settings, fullscreen). Can be forced to Desktop Mode. |
+| **macOS / Windows / Linux** | `InAppWebView` + localhost server | YouTube native controls                                                              |
+| **Web**                     | HTML iframe (`package:web`)       | YouTube native controls                                                              |
 
 > **Why localhost on Desktop (Windows, macOS, Linux)?** YouTube blocks iframe embedding from local files like `data:` and `file://` (Error 153). Serving via `http://localhost` provides a trusted origin that YouTube allows.
 
@@ -51,7 +90,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  adaptive_video_player: ^1.0.0
+  adaptive_video_player: ^1.0.4
 ```
 
 ## 🔒 Platform Permissions & Setup
@@ -59,11 +98,15 @@ dependencies:
 To ensure network videos and YouTube play correctly across devices, please configure the required platform permissions:
 
 ### 🤖 Android
+
 Ensure you have the `INTERNET` permission in your `android/app/src/main/AndroidManifest.xml`:
+
 ```xml
 <uses-permission android:name="android.permission.INTERNET"/>
 ```
-*(Required)* For playing `http://` video URLs **AND** for using `forceDesktopMode: true` on Android, you must add `usesCleartextTraffic` to your `<application>` tag:
+
+_(Required)_ For playing `http://` video URLs **AND** for using `forceDesktopMode: true` on Android, you must add `usesCleartextTraffic` to your `<application>` tag:
+
 ```xml
 <application
     ...
@@ -71,6 +114,7 @@ Ensure you have the `INTERNET` permission in your `android/app/src/main/AndroidM
 ```
 
 ### 🍎 iOS
+
 To allow the YouTube player (which uses Platform Views) to render without being stuck on a loading screen, add the following to your `ios/Runner/Info.plist`:
 
 ```xml
@@ -78,7 +122,8 @@ To allow the YouTube player (which uses Platform Views) to render without being 
 <true/>
 ```
 
-*(Optional)* For loading `http://` (unencrypted) video URLs safely, also add:
+_(Optional)_ For loading `http://` (unencrypted) video URLs safely, also add:
+
 ```xml
 <key>NSAppTransportSecurity</key>
 <dict>
@@ -90,19 +135,25 @@ To allow the YouTube player (which uses Platform Views) to render without being 
 ```
 
 ### 🍏 macOS
+
 For network video playback and YouTube webview support on macOS, you must grant the application permission to act as a network client.
 Open `macos/Runner/DebugProfile.entitlements` and `macos/Runner/Release.entitlements` and add the following:
+
 ```xml
 <key>com.apple.security.network.client</key>
 <true/>
 ```
 
 ### 🪟 Windows
+
 YouTube playback on Windows requires **NuGet** for the `flutter_inappwebview` build:
+
 ```powershell
 winget install Microsoft.NuGet
 ```
+
 For normal video playback (MP4s, etc.) on Windows, register the video player plugin in `main()`:
+
 ```dart
 import 'package:flutter/foundation.dart';
 import 'package:video_player_win/video_player_win_plugin.dart';
@@ -116,9 +167,11 @@ void main() {
 ```
 
 ### 🐧 Linux
+
 Linux requires WebKit for the `flutter_inappwebview` playback. Ensure your system has the necessary GTK/WebKit packages installed (e.g., `libwebkit2gtk-4.1-dev` on Ubuntu/Debian).
 
 ### 🌐 Web
+
 No specific permission files are needed. However, ensure that any external direct videos (MP4, MKV) you stream are hosted on servers with **CORS** (Cross-Origin Resource Sharing) enabled. YouTube videos are handled automatically via iframe.
 
 ---
@@ -198,93 +251,122 @@ AdaptiveVideoPlayer(
 )
 ```
 
+### Live Stream Example
+
+```dart
+AdaptiveVideoPlayer(
+  config: VideoConfig(
+    videoUrl: 'https://www.youtube.com/watch?v=YOUR_LIVE_VIDEO_ID',
+    isLive: true,
+    viewerCount: '1.2K', // Optional viewer count for the LIVE badge
+  ),
+)
+```
+
 ---
 
 ## 🎛️ Configuration Reference
+
+### VideoConfig
+
+| Property          | Type                       | Default                       | Description                                  |
+| ----------------- | -------------------------- | ----------------------------- | -------------------------------------------- |
+| `videoUrl`        | `String`                   | required                      | Video target URL                             |
+| `isFile`          | `bool`                     | `false`                       | True if the URL is a local file path         |
+| `isLive`          | `bool`                     | `false`                       | Enables LIVE indicator and disables seek bar |
+| `viewerCount`     | `String?`                  | `null`                        | Displayed when `isLive` is true              |
+| `qualities`       | `List<VideoQuality>?`      | `null`                        | Available qualities or sources               |
+| `subtitles`       | `List<SubtitleTrack>?`     | `null`                        | Available subtitle tracks                    |
+| `controlsBuilder` | `AdaptiveControlsBuilder?` | `null`                        | Custom controls overlay builder              |
+| `subtitleBuilder` | `SubtitleBuilder?`         | `null`                        | Custom subtitles UI builder                  |
+| `playerConfig`    | `YouTubePlayerConfig`      | `const YouTubePlayerConfig()` | YouTube specific settings                    |
 
 ### YouTubePlayerConfig
 
 #### PlayerPlaybackConfig
 
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `autoPlay` | `bool` | `false` | Auto-start playback |
-| `loop` | `bool` | `false` | Loop video |
-| `mute` | `bool` | `false` | Start muted |
-| `forceHD` | `bool` | `false` | Force HD quality |
-| `enableCaption` | `bool` | `false` | Enable captions |
+| Property             | Type   | Default | Description                           |
+| -------------------- | ------ | ------- | ------------------------------------- |
+| `autoPlay`           | `bool` | `false` | Auto-start playback                   |
+| `loop`               | `bool` | `false` | Loop video                            |
+| `mute`               | `bool` | `false` | Start muted                           |
+| `forceHD`            | `bool` | `false` | Force HD quality                      |
+| `enableCaption`      | `bool` | `false` | Enable captions                       |
+| `forceDesktopMode`   | `bool` | `false` | Use WebView player on Android/iOS     |
+| `allowExternalLinks` | `bool` | `true`  | Open external links in system browser |
 
 #### PlayerStyleConfig
 
-| Property | Type | Default | Description |
-|----------|------|---------|-------------|
-| `progressBarPlayedColor` | `Color` | `Colors.red` | Progress bar color |
-| `progressBarHandleColor` | `Color` | `Colors.redAccent` | Handle color |
-| `iconColor` | `Color` | `Colors.white` | Control icons color |
-| `textColor` | `Color` | `Colors.white` | Text color |
-| `backgroundColor` | `Color` | `#1D1D1D` | Player background |
-| `loadingIndicatorColor` | `Color` | `Colors.red` | Loading spinner color |
-| `errorIconColor` | `Color` | `Colors.red` | Error icon color |
-| `settingsBackgroundColor` | `Color` | `#1D1D1D` | Settings sheet background |
+| Property                  | Type    | Default            | Description               |
+| ------------------------- | ------- | ------------------ | ------------------------- |
+| `progressBarPlayedColor`  | `Color` | `Colors.red`       | Progress bar color        |
+| `progressBarHandleColor`  | `Color` | `Colors.redAccent` | Handle color              |
+| `iconColor`               | `Color` | `Colors.white`     | Control icons color       |
+| `textColor`               | `Color` | `Colors.white`     | Text color                |
+| `backgroundColor`         | `Color` | `#1D1D1D`          | Player background         |
+| `loadingIndicatorColor`   | `Color` | `Colors.red`       | Loading spinner color     |
+| `errorIconColor`          | `Color` | `Colors.red`       | Error icon color          |
+| `settingsBackgroundColor` | `Color` | `#1D1D1D`          | Settings sheet background |
 
 #### PlayerTextConfig
 
-| Property | Type | Default |
-|----------|------|---------|
-| `invalidYoutubeUrlText` | `String` | `"Invalid YouTube URL"` |
-| `videoLoadFailedText` | `String` | `"Failed to load video"` |
-| `playerSettingsText` | `String` | `"Player Settings"` |
-| `autoPlayText` | `String` | `"Auto Play"` |
-| `loopVideoText` | `String` | `"Loop Video"` |
-| `forceHdQualityText` | `String` | `"Force HD Quality"` |
-| `enableCaptionsText` | `String` | `"Enable Captions"` |
-| `muteAudioText` | `String` | `"Mute Audio"` |
+| Property                | Type     | Default                  |
+| ----------------------- | -------- | ------------------------ |
+| `invalidYoutubeUrlText` | `String` | `"Invalid YouTube URL"`  |
+| `videoLoadFailedText`   | `String` | `"Failed to load video"` |
+| `playerSettingsText`    | `String` | `"Player Settings"`      |
+| `autoPlayText`          | `String` | `"Auto Play"`            |
+| `loopVideoText`         | `String` | `"Loop Video"`           |
+| `forceHdQualityText`    | `String` | `"Force HD Quality"`     |
+| `enableCaptionsText`    | `String` | `"Enable Captions"`      |
+| `muteAudioText`         | `String` | `"Mute Audio"`           |
 
 #### PlayerVisibilityConfig
 
-| Property | Type | Default |
-|----------|------|---------|
-| `showControls` | `bool` | `true` |
-| `showFullscreenButton` | `bool` | `true` |
-| `showSettingsButton` | `bool` | `true` |
-| `showAutoPlaySetting` | `bool` | `true` |
-| `showLoopSetting` | `bool` | `true` |
-| `showForceHDSetting` | `bool` | `true` |
-| `showCaptionsSetting` | `bool` | `true` |
-| `showMuteSetting` | `bool` | `true` |
+| Property               | Type   | Default |
+| ---------------------- | ------ | ------- |
+| `showControls`         | `bool` | `true`  |
+| `showFullscreenButton` | `bool` | `true`  |
+| `showSettingsButton`   | `bool` | `true`  |
+| `showAutoPlaySetting`  | `bool` | `true`  |
+| `showLoopSetting`      | `bool` | `true`  |
+| `showForceHDSetting`   | `bool` | `true`  |
+| `showCaptionsSetting`  | `bool` | `true`  |
+| `showMuteSetting`      | `bool` | `true`  |
 
 ---
 
 ## 🏛️ Architecture
 
-```
+```text
 lib/
-├── adaptive_video_player.dart                    # Package exports
-├── adaptive_video_player.dart            # Smart YouTube/direct video detection
-├── normal_video_player/
-│   ├── normal_video_player.dart          # Chewie-based video player
-│   └── model/
-│       └── video_config.dart             # Video configuration model
-└── youtube_player/
-    ├── youtube_video_player.dart          # Main YouTube player (platform-aware)
-    ├── cubit/
-    │   ├── youtube_player_cubit.dart      # BLoC state management
-    │   └── youtube_player_state.dart
-    ├── models/
-    │   └── player_config.dart            # YouTube player config models
-    ├── utils/
-    │   ├── player_utils.dart             # Player utility functions
-    │   ├── youtube_web_actual.dart        # Web iframe implementation
-    │   ├── youtube_web_export.dart        # Conditional export
-    │   └── youtube_web_stub.dart          # Stub for non-web
-    └── widgets/
-        ├── youtube_webview_player.dart    # Desktop WebView player (localhost)
-        ├── player_controls.dart          # Seek overlay, loading, error widgets
-        ├── player_bottom_actions.dart    # Bottom action bar builder
-        ├── player_settings_sheet.dart    # Settings bottom sheet
-        ├── player_settings_helper.dart   # Settings helper
-        ├── setting_item.dart             # Individual setting toggle
-        └── fullscreen_player_page.dart   # Fullscreen player page
+├── adaptive_video_player.dart              # Package exports & Smart YouTube/direct video detection
+└── src/
+    ├── normal_video_player/
+    │   ├── normal_video_player.dart        # Native video player component
+    │   ├── adaptive_controls.dart          # Core UI controls overlay builder
+    │   └── model/
+    │       └── video_config.dart           # Video configuration model
+    └── youtube_player/
+        ├── youtube_video_player.dart       # Main YouTube player (platform-aware)
+        ├── cubit/
+        │   ├── youtube_player_cubit.dart   # BLoC state management
+        │   └── youtube_player_state.dart
+        ├── models/
+        │   └── player_config.dart          # YouTube player config models
+        ├── utils/
+        │   ├── player_utils.dart           # Player utility functions
+        │   ├── youtube_web_actual.dart     # Web iframe implementation
+        │   ├── youtube_web_export.dart     # Conditional export
+        │   └── youtube_web_stub.dart       # Stub for non-web
+        └── widgets/
+            ├── youtube_webview_player.dart # Desktop WebView player (localhost)
+            ├── player_controls.dart        # Seek overlay, loading, error widgets
+            ├── player_bottom_actions.dart  # Bottom action bar builder
+            ├── player_settings_sheet.dart  # Settings bottom sheet
+            ├── player_settings_helper.dart # Settings helper
+            ├── setting_item.dart           # Individual setting toggle
+            └── fullscreen_player_page.dart # Fullscreen player page
 ```
 
 ---
@@ -304,7 +386,7 @@ MP4 · MOV · AVI · MKV · WebM · M4V · 3GP · FLV · WMV
 **Q: I get "Error 153" on Windows Desktop.**  
 A: This is handled automatically. The package serves YouTube via `http://localhost` to bypass the restriction.
 
-**Q: I get "Nuget is not installed" on Windows.**  
+**Q: I get "NuGet is not installed" on Windows.**  
 A: Run `winget install Microsoft.NuGet` and restart your IDE.
 
 **Q: MP4 videos don't play on Windows.**  
@@ -312,6 +394,18 @@ A: Add `WindowsVideoPlayer.registerWith()` in your `main()` before `runApp()`.
 
 **Q: Does it work on macOS/Linux?**  
 A: Desktop support uses `InAppWebView` which primarily supports Windows. macOS/Linux support depends on `flutter_inappwebview` platform availability.
+
+---
+
+## 🔮 Roadmap (Future Features)
+
+We are actively working to make this the ultimate video player. Upcoming features:
+
+1. **Playlist Support:** `AdaptiveVideoPlaylist(videos: [...])`
+2. **Analytics Callbacks:** `onPlay`, `onPause`, `onCompleted`, `onError`
+3. **Picture in Picture (PiP):** Native PiP support for Android & iOS.
+
+_(Got a feature request? Open an issue!)_
 
 ---
 
@@ -340,6 +434,7 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 - [youtube_player_flutter](https://pub.dev/packages/youtube_player_flutter) — YouTube player for mobile
 - [flutter_inappwebview](https://pub.dev/packages/flutter_inappwebview) — WebView for Desktop YouTube
 - [video_player](https://pub.dev/packages/video_player) — Flutter's official video player
-- [chewie](https://pub.dev/packages/chewie) — Video player controls
 - [flutter_bloc](https://pub.dev/packages/flutter_bloc) — State management
 - [video_player_win](https://pub.dev/packages/video_player_win) — Windows MP4 support
+- [url_launcher](https://pub.dev/packages/url_launcher) — Launching external URLs safely
+- [web](https://pub.dev/packages/web) — Modern Web APIs for WASM compatibility
