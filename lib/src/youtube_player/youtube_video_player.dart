@@ -27,18 +27,22 @@ class YouTubeVideoPlayer extends StatefulWidget {
   /// Complete player configuration
   final YouTubePlayerConfig config;
 
-  /// Whether the video is a live stream
-  final bool isLive;
-
   /// Callback when the video ends
   final VoidCallback? onEnded;
+
+  /// Optional live viewer count
+  final String? viewerCount;
+
+  /// Whether this is a live stream explicitly
+  final bool isLive;
 
   const YouTubeVideoPlayer({
     super.key,
     required this.videoSource,
     this.config = const YouTubePlayerConfig(),
-    this.isLive = false,
     this.onEnded,
+    this.viewerCount,
+    this.isLive = false,
   });
 
   @override
@@ -57,7 +61,9 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
   bool _hasRestoredPosition = false;
   bool _videoEnded = false;
   String? _webIframeId;
-  final GlobalKey _desktopWebViewKey = GlobalKey();
+  final GlobalKey<YouTubeWebViewPlayerState> _desktopWebViewKey =
+      GlobalKey<YouTubeWebViewPlayerState>();
+  OverlayEntry? _desktopFullscreenOverlay;
 
   YouTubePlayerConfig get _cfg => widget.config;
   PlayerCubitState get _state => _cubit.state;
@@ -156,7 +162,6 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
           enableCaption: _state.enableCaption,
           showControls: _cfg.visibility.showControls,
           startAt: startAtSeconds,
-          isLive: widget.isLive,
         ),
       );
 
@@ -224,58 +229,6 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
   }
 
   Future<void> _openFullScreen() async {
-    if (_useDesktopPlayer) {
-      if (!mounted) return;
-      setState(() {
-        _isInFullscreen = true;
-      });
-
-      await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-
-      if (mounted) {
-        await Navigator.of(context).push(
-          PageRouteBuilder(
-            opaque: true,
-            pageBuilder: (context, animation, secondaryAnimation) {
-              return Scaffold(
-                backgroundColor: Colors.black,
-                body: SafeArea(
-                  child: Center(
-                    child: YouTubeWebViewPlayer(
-                      key: _desktopWebViewKey,
-                      videoId: _videoId!,
-                      config: _cfg,
-                      onEnded: () => widget.onEnded?.call(),
-                      onEnterFullscreen: () {},
-                      onExitFullscreen: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ),
-                ),
-              );
-            },
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-          ),
-        );
-      }
-
-      await SystemChrome.setEnabledSystemUIMode(
-        SystemUiMode.manual,
-        overlays: SystemUiOverlay.values,
-      );
-
-      if (mounted) {
-        setState(() {
-          _isInFullscreen = false;
-        });
-      }
-      return;
-    }
-
     final controller = _controller;
     if (controller == null || _isControllerDisposed) return;
 
@@ -307,6 +260,7 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
             onEnded: widget.onEnded,
             config: _cfg,
             isLive: widget.isLive,
+            viewerCount: widget.viewerCount,
           );
         },
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -394,6 +348,110 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
         log('Error syncing after fullscreen: $e');
       }
     }
+  }
+
+  Future<void> _openDesktopFullscreen() async {
+    if (_isInFullscreen) return;
+
+    final overlay = Overlay.of(context);
+
+    // Build the overlay entry
+    _desktopFullscreenOverlay = OverlayEntry(
+      builder: (context) {
+        return Scaffold(
+          backgroundColor: Colors.black,
+          body: SizedBox.expand(
+            child: Stack(
+              children: [
+                Positioned.fill(child: _buildDesktopPlayer()),
+                Positioned(
+                  top: 24,
+                  right: 24,
+                  child: _buildDesktopFullscreenButton(true),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    // Activate fullscreen flags entirely within the same frame that it gets moved to the Overlay
+    setState(() {
+      _isInFullscreen = true;
+    });
+
+    overlay.insert(_desktopFullscreenOverlay!);
+
+    await SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    await SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
+
+  void _closeDesktopFullscreen() async {
+    if (!_isInFullscreen || _desktopFullscreenOverlay == null) return;
+
+    // Immediately remove overlay to free the GlobalKey for the inline placement
+    _desktopFullscreenOverlay?.remove();
+    _desktopFullscreenOverlay?.dispose();
+    _desktopFullscreenOverlay = null;
+
+    setState(() {
+      _isInFullscreen = false;
+    });
+
+    if (_desktopWebViewKey.currentState != null) {
+      try {
+        _desktopWebViewKey.currentState?.exitFullscreen();
+      } catch (e) {
+        log('Error exiting native fullscreen: $e');
+      }
+    }
+
+    await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+    await SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual,
+      overlays: SystemUiOverlay.values,
+    );
+  }
+
+  Widget _buildDesktopFullscreenButton(bool isFullScreenMode) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap:
+            isFullScreenMode ? _closeDesktopFullscreen : _openDesktopFullscreen,
+        borderRadius: BorderRadius.circular(4),
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.5),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Icon(
+            isFullScreenMode ? Icons.fullscreen_exit : Icons.fullscreen,
+            color: Colors.white,
+            size: 28,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDesktopPlayer() {
+    return YouTubeWebViewPlayer(
+      key: _desktopWebViewKey,
+      videoId: _videoId!,
+      config: _cfg,
+      onReady: () => log('Desktop YouTube player ready'),
+      onEnded: () => widget.onEnded?.call(),
+      onEnterFullscreen: _openDesktopFullscreen,
+      onExitFullscreen: _closeDesktopFullscreen,
+    );
   }
 
   void _restartVideo() {
@@ -591,22 +649,15 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
                   else if (_useDesktopPlayer)
                     _isInFullscreen
                         ? const SizedBox()
-                        : YouTubeWebViewPlayer(
-                            key: _desktopWebViewKey,
-                            videoId: _videoId!,
-                            config: _cfg,
-                            onReady: () => log('Desktop YouTube player ready'),
-                            onEnded: () => widget.onEnded?.call(),
-                            onEnterFullscreen: () {
-                              if (!_isInFullscreen && mounted) {
-                                _openFullScreen();
-                              }
-                            },
-                            onExitFullscreen: () {
-                              if (_isInFullscreen && mounted) {
-                                Navigator.of(context).pop();
-                              }
-                            },
+                        : Stack(
+                            children: [
+                              Positioned.fill(child: _buildDesktopPlayer()),
+                              Positioned(
+                                bottom: 12,
+                                right: 12,
+                                child: _buildDesktopFullscreenButton(false),
+                              ),
+                            ],
                           )
                   // Mobile: Native youtube_player_flutter
                   else
@@ -630,13 +681,13 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
                         ),
                         isMuted: state.isMuted,
                         isFullscreen: false,
-                        isLive: widget.isLive,
                         showFullscreenButton:
                             _cfg.visibility.showFullscreenButton,
                         showSettingsButton: _cfg.visibility.showSettingsButton,
                         onFullscreenTap: _openFullScreen,
                         onMuteTap: _toggleMute,
                         onSettingsTap: _showSettingsBottomSheet,
+                        isLive: widget.isLive,
                       ),
                       onReady: () => log('YouTube player ready'),
                       onEnded: (metaData) => widget.onEnded?.call(),
@@ -645,6 +696,7 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
                   if (!_videoEnded &&
                       !kIsWeb &&
                       !_useDesktopPlayer &&
+                      !widget.isLive &&
                       controller != null)
                     ValueListenableBuilder<YoutubePlayerValue>(
                       valueListenable: controller,
@@ -709,12 +761,92 @@ class YouTubeVideoPlayerState extends State<YouTubeVideoPlayer> {
                         ),
                       ),
                     ),
+                  // Live Status / Viewer count overlay
+                  if ((widget.isLive || widget.viewerCount != null) &&
+                      !_videoEnded)
+                    Positioned(
+                      top: 16,
+                      left: 16,
+                      child: (!kIsWeb &&
+                              !_useDesktopPlayer &&
+                              controller != null)
+                          ? ValueListenableBuilder<YoutubePlayerValue>(
+                              valueListenable: controller,
+                              builder: (context, value, child) {
+                                return AnimatedOpacity(
+                                  opacity: value.isControlsVisible ? 1.0 : 0.0,
+                                  duration: const Duration(milliseconds: 300),
+                                  child: child,
+                                );
+                              },
+                              child: _buildLiveIndicatorBlock(),
+                            )
+                          : _buildLiveIndicatorBlock(),
+                    ),
                 ],
               ),
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildLiveIndicatorBlock() {
+    return Row(
+      children: [
+        if (widget.isLive)
+          Container(
+            margin: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.red,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const Text('LIVE',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold)),
+              ],
+            ),
+          ),
+        if (widget.viewerCount != null)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.black54,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.person, color: Colors.white, size: 14),
+                const SizedBox(width: 6),
+                Text(
+                  widget.viewerCount!,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
     );
   }
 

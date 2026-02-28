@@ -28,6 +28,7 @@ class BaseAdaptiveVideoPlayer extends StatefulWidget {
   final void Function(SubtitleTrack?)? onSubtitleSelected;
   final List<SubtitleItem>? parsedSubtitles;
   final bool isLive;
+  final String? viewerCount;
 
   const BaseAdaptiveVideoPlayer({
     super.key,
@@ -46,6 +47,7 @@ class BaseAdaptiveVideoPlayer extends StatefulWidget {
     this.onSubtitleSelected,
     this.parsedSubtitles,
     this.isLive = false,
+    this.viewerCount,
   });
 
   @override
@@ -105,7 +107,7 @@ class _BaseAdaptiveVideoPlayerState extends State<BaseAdaptiveVideoPlayer> {
       }
     }
 
-    if (_currentSubtitleText != newText) {
+    if (_currentSubtitleText != newText && mounted) {
       setState(() => _currentSubtitleText = newText);
     }
   }
@@ -140,6 +142,7 @@ class _BaseAdaptiveVideoPlayerState extends State<BaseAdaptiveVideoPlayer> {
     final width = MediaQuery.of(context).size.width;
     final position = details.globalPosition.dx;
     final currentPosition = widget.controller.value.position;
+    final wasPlaying = widget.controller.value.isPlaying;
 
     setState(() {
       if (position > width / 2) {
@@ -150,6 +153,10 @@ class _BaseAdaptiveVideoPlayerState extends State<BaseAdaptiveVideoPlayer> {
         widget.controller.seekTo(currentPosition - const Duration(seconds: 10));
       }
     });
+
+    if (wasPlaying) {
+      widget.controller.play();
+    }
 
     _startHideTimer(); // Reset auto-hide timer when double tapped
 
@@ -294,6 +301,7 @@ class _BaseAdaptiveVideoPlayerState extends State<BaseAdaptiveVideoPlayer> {
                         controlsBuilder: widget.controlsBuilder,
                         subtitleBuilder: widget.subtitleBuilder,
                         isLive: widget.isLive,
+                        viewerCount: widget.viewerCount,
                       ),
               ),
             ),
@@ -319,6 +327,7 @@ class AdaptiveControlsLayer extends StatelessWidget {
   final AdaptiveControlsBuilder? controlsBuilder;
   final SubtitleBuilder? subtitleBuilder;
   final bool isLive;
+  final String? viewerCount;
 
   const AdaptiveControlsLayer({
     super.key,
@@ -336,14 +345,21 @@ class AdaptiveControlsLayer extends StatelessWidget {
     this.controlsBuilder,
     this.subtitleBuilder,
     this.isLive = false,
+    this.viewerCount,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.black45,
+      color: Colors.black.withValues(alpha: 0.3),
       child: Stack(
         children: [
+          Positioned(
+            top: 24,
+            left: 24,
+            right: 24,
+            child: _buildTopBar(),
+          ),
           Align(
             alignment: Alignment.center,
             child: _buildCenterPlayPause(),
@@ -351,12 +367,41 @@ class AdaptiveControlsLayer extends StatelessWidget {
           Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              if (!isLive) _buildProgressBar(),
+              if (!isLive) _buildProgressBar(context),
               _buildBottomBar(context),
             ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildTopBar() {
+    return Row(
+      children: [
+        _buildLiveIndicator(),
+        const SizedBox(width: 8),
+        if (viewerCount != null)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: Colors.black54,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.person, color: Colors.white, size: 14),
+                const SizedBox(width: 6),
+                Text(viewerCount!,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13)),
+              ],
+            ),
+          ),
+      ],
     );
   }
 
@@ -368,8 +413,8 @@ class AdaptiveControlsLayer extends StatelessWidget {
         return IconButton(
           iconSize: isFullScreen ? 80 : 64, // Bigger in landscape
           icon: Icon(
-            isPlaying ? Icons.pause_circle_outline : Icons.play_circle_outline,
-            color: styling?.iconColor ?? Colors.white70,
+            isPlaying ? null : Icons.play_arrow,
+            color: styling?.iconColor ?? Colors.white.withValues(alpha: 0.9),
           ),
           onPressed: () {
             if (isPlaying) {
@@ -387,7 +432,7 @@ class AdaptiveControlsLayer extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressBar() {
+  Widget _buildProgressBar(BuildContext context) {
     return ValueListenableBuilder(
       valueListenable: controller,
       builder: (context, VideoPlayerValue value, _) {
@@ -409,19 +454,23 @@ class AdaptiveControlsLayer extends StatelessWidget {
               ),
             ),
 
-            // Interactive Slider layer
+            // Pro Gradient Slider
             SliderTheme(
               data: SliderTheme.of(context).copyWith(
-                trackHeight: isFullScreen ? 4.0 : 2.0, // Thicker in landscape
+                trackHeight: isFullScreen ? 6.0 : 4.0, // Thicker in landscape
+                trackShape: const _GradientSliderTrackShape(
+                    gradient: LinearGradient(
+                  colors: [Color(0xFFFF007F), Color(0xFF00E5FF)],
+                )),
                 thumbShape: RoundSliderThumbShape(
-                    enabledThumbRadius: isFullScreen ? 8.0 : 6.0),
+                  enabledThumbRadius: isFullScreen ? 8.0 : 6.0,
+                  elevation: 4.0,
+                ),
                 overlayShape:
                     const RoundSliderOverlayShape(overlayRadius: 14.0),
-                activeTrackColor: styling?.progressBarPlayedColor ?? Colors.red,
-                inactiveTrackColor:
-                    styling?.progressBarHandleColor.withValues(alpha: 0.3) ??
-                        Colors.white24,
-                thumbColor: styling?.progressBarHandleColor ?? Colors.red,
+                activeTrackColor: Colors.white, // Overridden by custom shape
+                inactiveTrackColor: Colors.white24,
+                thumbColor: Colors.white,
               ),
               child: Slider(
                 min: 0,
@@ -440,33 +489,35 @@ class AdaptiveControlsLayer extends StatelessWidget {
 
   Widget _buildBottomBar(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 12.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             children: [
-              _buildLiveIndicator(),
-              ValueListenableBuilder(
-                valueListenable: controller,
-                builder: (context, VideoPlayerValue value, child) {
-                  final position = isLive ? Duration.zero : value.position;
-                  final duration = isLive ? Duration.zero : value.duration;
-                  return Text(
-                    isLive
-                        ? ''
-                        : "${_formatDuration(position)} / ${_formatDuration(duration)}",
-                    style: styling?.timeTextStyle ??
-                        const TextStyle(color: Colors.white, fontSize: 14),
-                  );
-                },
-              ),
+              _buildBottomPlayPause(),
+              _buildVolumeControl(),
+              const SizedBox(width: 8),
+              if (!isLive)
+                ValueListenableBuilder(
+                  valueListenable: controller,
+                  builder: (context, VideoPlayerValue value, child) {
+                    return Text(
+                      "${_formatDuration(value.position)} / ${_formatDuration(value.duration)}",
+                      style: styling?.timeTextStyle ??
+                          const TextStyle(
+                              color: Colors.white,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500),
+                    );
+                  },
+                ),
             ],
           ),
           Row(
             children: [
               _buildSettingsButton(context),
-              _buildSpeedControl(),
+              const SizedBox(width: 4),
               _buildFullscreenButton(context),
             ],
           ),
@@ -475,21 +526,73 @@ class AdaptiveControlsLayer extends StatelessWidget {
     );
   }
 
+  Widget _buildBottomPlayPause() {
+    return ValueListenableBuilder(
+      valueListenable: controller,
+      builder: (context, VideoPlayerValue value, _) {
+        final isPlaying = value.isPlaying;
+        return IconButton(
+          icon: Icon(
+            isPlaying ? Icons.pause : Icons.play_arrow,
+            color: Colors.white,
+            size: 28,
+          ),
+          onPressed: () {
+            isPlaying ? controller.pause() : controller.play();
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildVolumeControl() {
+    return ValueListenableBuilder(
+      valueListenable: controller,
+      builder: (context, VideoPlayerValue value, _) {
+        final isMuted = value.volume == 0;
+        return IconButton(
+          icon: Icon(
+            isMuted ? Icons.volume_off : Icons.volume_up,
+            color: Colors.white,
+            size: 26,
+          ),
+          onPressed: () {
+            controller.setVolume(isMuted ? 1.0 : 0.0);
+          },
+        );
+      },
+    );
+  }
+
   Widget _buildLiveIndicator() {
     if (isLive) {
       // Currently live: show red badge
       return Container(
         margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
         decoration: BoxDecoration(
           color: Colors.red,
           borderRadius: BorderRadius.circular(4),
         ),
-        child: const Text('LIVE',
-            style: TextStyle(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 6,
+              height: 6,
+              decoration: const BoxDecoration(
                 color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold)),
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 4),
+            const Text('LIVE',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold)),
+          ],
+        ),
       );
     } else {
       // Not live, but check if there's a live quality available to switch to
@@ -502,7 +605,7 @@ class AdaptiveControlsLayer extends StatelessWidget {
           },
           child: Container(
             margin: const EdgeInsets.only(right: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
             decoration: BoxDecoration(
               border: Border.all(color: Colors.white54, width: 1),
               borderRadius: BorderRadius.circular(4),
@@ -539,9 +642,9 @@ class AdaptiveControlsLayer extends StatelessWidget {
   }
 
   Widget _buildSettingsButton(BuildContext context) {
-    return IconButton(
-      icon: Icon(Icons.settings, color: styling?.iconColor ?? Colors.white),
-      onPressed: () {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
         onAnalyticsEvent?.call('settings_opened', {});
         showModalBottomSheet(
           context: context,
@@ -611,22 +714,11 @@ class AdaptiveControlsLayer extends StatelessWidget {
           },
         );
       },
-    );
-  }
-
-  Widget _buildSpeedControl() {
-    return PopupMenuButton<double>(
-      icon: Icon(Icons.speed, color: styling?.iconColor ?? Colors.white),
-      onSelected: (speed) {
-        controller.setPlaybackSpeed(speed);
-        onAnalyticsEvent?.call('speed_changed', {'speed': speed});
-      },
-      itemBuilder: (_) => [
-        const PopupMenuItem(value: 0.5, child: Text("0.5x")),
-        const PopupMenuItem(value: 1.0, child: Text("1x")),
-        const PopupMenuItem(value: 1.5, child: Text("1.5x")),
-        const PopupMenuItem(value: 2.0, child: Text("2x")),
-      ],
+      child: Padding(
+        padding: const EdgeInsets.all(6.0),
+        child: Icon(Icons.settings,
+            color: styling?.iconColor ?? Colors.white, size: 18),
+      ),
     );
   }
 
@@ -725,12 +817,9 @@ class AdaptiveControlsLayer extends StatelessWidget {
   }
 
   Widget _buildFullscreenButton(BuildContext context) {
-    return IconButton(
-      icon: Icon(
-        isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen,
-        color: styling?.iconColor ?? Colors.white,
-      ),
-      onPressed: () {
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {
         if (isFullScreen) {
           Navigator.pop(context);
         } else {
@@ -756,6 +845,14 @@ class AdaptiveControlsLayer extends StatelessWidget {
           );
         }
       },
+      child: Padding(
+        padding: const EdgeInsets.all(6.0),
+        child: Icon(
+          isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen,
+          color: styling?.iconColor ?? Colors.white,
+          size: 18,
+        ),
+      ),
     );
   }
 }
@@ -870,5 +967,74 @@ class _BufferPainter extends CustomPainter {
   @override
   bool shouldRepaint(_BufferPainter oldDelegate) {
     return oldDelegate.buffered != buffered || oldDelegate.duration != duration;
+  }
+}
+
+class _GradientSliderTrackShape extends SliderTrackShape
+    with BaseSliderTrackShape {
+  const _GradientSliderTrackShape({
+    this.gradient = const LinearGradient(
+      colors: [Color(0xFFFF007F), Color(0xFF00E5FF)],
+    ),
+  });
+
+  final LinearGradient gradient;
+
+  @override
+  void paint(
+    PaintingContext context,
+    Offset offset, {
+    required RenderBox parentBox,
+    required SliderThemeData sliderTheme,
+    required Animation<double> enableAnimation,
+    required TextDirection textDirection,
+    required Offset thumbCenter,
+    Offset? secondaryOffset,
+    bool isDiscrete = false,
+    bool isEnabled = false,
+    double additionalActiveTrackHeight = 2,
+  }) {
+    assert(sliderTheme.disabledActiveTrackColor != null);
+    assert(sliderTheme.disabledInactiveTrackColor != null);
+    assert(sliderTheme.activeTrackColor != null);
+    assert(sliderTheme.inactiveTrackColor != null);
+    assert(sliderTheme.thumbShape != null);
+
+    if (sliderTheme.trackHeight == null || sliderTheme.trackHeight! <= 0) {
+      return;
+    }
+
+    final Rect trackRect = getPreferredRect(
+      parentBox: parentBox,
+      offset: offset,
+      sliderTheme: sliderTheme,
+      isEnabled: isEnabled,
+      isDiscrete: isDiscrete,
+    );
+
+    final activeTrackRect = Rect.fromLTRB(
+        trackRect.left, trackRect.top, thumbCenter.dx, trackRect.bottom);
+    final inactiveTrackRect = Rect.fromLTRB(
+        thumbCenter.dx, trackRect.top, trackRect.right, trackRect.bottom);
+
+    final Paint activePaint = Paint()
+      ..shader = gradient.createShader(trackRect);
+    final Paint inactivePaint = Paint()
+      ..color = sliderTheme.inactiveTrackColor!;
+
+    if (inactiveTrackRect.width > 0) {
+      context.canvas.drawRRect(
+        RRect.fromRectAndRadius(
+            inactiveTrackRect, Radius.circular(trackRect.height / 2)),
+        inactivePaint,
+      );
+    }
+    if (activeTrackRect.width > 0) {
+      context.canvas.drawRRect(
+        RRect.fromRectAndRadius(
+            activeTrackRect, Radius.circular(trackRect.height / 2)),
+        activePaint,
+      );
+    }
   }
 }

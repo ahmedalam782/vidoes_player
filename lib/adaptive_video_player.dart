@@ -48,6 +48,7 @@ class _AdaptiveVideoPlayerState extends State<AdaptiveVideoPlayer> {
       return YouTubeVideoPlayer(
         videoSource: _youtubeVideoId!,
         config: widget.config.playerConfig,
+        viewerCount: widget.config.viewerCount,
         isLive: widget.config.isLive,
       );
     }
@@ -61,6 +62,7 @@ class _AdaptiveVideoPlayerState extends State<AdaptiveVideoPlayer> {
       initialQuality: widget.config.initialQuality,
       subtitles: widget.config.subtitles,
       initialSubtitle: widget.config.initialSubtitle,
+      viewerCount: widget.config.viewerCount,
       styling: widget.config.styling,
       messages: widget.config.messages,
       visibility: widget.config.visibility,

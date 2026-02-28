@@ -69,6 +69,9 @@ class VideoConfig {
   /// Custom builder for subtitles layer
   final SubtitleBuilder? subtitleBuilder;
 
+  /// Optional viewer count to display when stream is live
+  final String? viewerCount;
+
   /// Analytics hook for external tracking of video events
   final void Function(String event, Map<String, dynamic> data)?
       onAnalyticsEvent;
@@ -87,6 +90,7 @@ class VideoConfig {
     this.initialSubtitle,
     this.controlsBuilder,
     this.subtitleBuilder,
+    this.viewerCount,
     this.onAnalyticsEvent,
     this.playerConfig = const YouTubePlayerConfig(),
   });

@@ -29,6 +29,9 @@ class NormalVideoPlayer extends StatefulWidget {
   /// Initial subtitle track to activate
   final SubtitleTrack? initialSubtitle;
 
+  /// Optional viewer count to display when stream is live
+  final String? viewerCount;
+
   /// Styling configuration for the video player
   final PlayerStyleConfig? styling;
 
@@ -61,6 +64,7 @@ class NormalVideoPlayer extends StatefulWidget {
     this.initialQuality,
     this.subtitles,
     this.initialSubtitle,
+    this.viewerCount,
     this.styling,
     this.messages,
     this.visibility,
@@ -389,6 +393,7 @@ class NormalVideoPlayerState extends State<NormalVideoPlayer> {
             currentSubtitleTrack: _currentSubtitleTrack,
             onSubtitleSelected: _changeSubtitleTrack,
             parsedSubtitles: _parsedSubtitles,
+            viewerCount: widget.viewerCount,
           ),
         ),
       ),

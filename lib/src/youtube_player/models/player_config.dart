@@ -276,6 +276,9 @@ class PlayerPlaybackConfig {
   /// This will use the WebView player instead of the native YouTube player on mobile.
   final bool forceDesktopMode;
 
+  /// Whether to allow opening external links (like clicking the YouTube logo) in the system browser
+  final bool allowExternalLinks;
+
   const PlayerPlaybackConfig({
     this.autoPlay = false,
     this.loop = false,
@@ -283,6 +286,7 @@ class PlayerPlaybackConfig {
     this.forceHD = false,
     this.enableCaption = false,
     this.forceDesktopMode = false,
+    this.allowExternalLinks = true,
   });
 
   /// Creates a copy with updated values
@@ -293,6 +297,7 @@ class PlayerPlaybackConfig {
     bool? forceHD,
     bool? enableCaption,
     bool? forceDesktopMode,
+    bool? allowExternalLinks,
   }) {
     return PlayerPlaybackConfig(
       autoPlay: autoPlay ?? this.autoPlay,
@@ -301,6 +306,7 @@ class PlayerPlaybackConfig {
       forceHD: forceHD ?? this.forceHD,
       enableCaption: enableCaption ?? this.enableCaption,
       forceDesktopMode: forceDesktopMode ?? this.forceDesktopMode,
+      allowExternalLinks: allowExternalLinks ?? this.allowExternalLinks,
     );
   }
 }
