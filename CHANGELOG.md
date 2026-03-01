@@ -1,4 +1,4 @@
-## 1.1.1
+## 1.2.2
 
 - **Documentation:** Complete README overhaul with comprehensive usage examples, full configuration reference tables, platform permissions & setup guide, FAQ section, architecture overview, and contributing guidelines.
 - **Documentation:** Added platform demo GIFs (Android, iOS, Windows, macOS, Web) to the README.
