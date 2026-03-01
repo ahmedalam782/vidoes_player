@@ -1,3 +1,9 @@
+## 1.1.1
+
+- **Documentation:** Complete README overhaul with comprehensive usage examples, full configuration reference tables, platform permissions & setup guide, FAQ section, architecture overview, and contributing guidelines.
+- **Documentation:** Added platform demo GIFs (Android, iOS, Windows, macOS, Web) to the README.
+- **Documentation:** Added feature comparison table and platform-specific YouTube behavior details.
+
 ## 1.1.0
 
 - **Major Feature:** Added Live Stream support with a dynamic "LIVE" indicator and adjustable Viewer Count (`isLive`, `viewerCount`).

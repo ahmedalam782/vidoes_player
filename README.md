@@ -25,6 +25,22 @@ _(Just drop it in and it automatically adapts to YouTube or direct MP4/HLS strea
 
 ---
 
+## 🎥 Demo
+
+|                 Android                  |               iOS                |
+| :--------------------------------------: | :------------------------------: |
+| ![Android Demo](assets/demo/android.gif) | ![iOS Demo](assets/demo/ios.gif) |
+
+|                 Windows                  |                macOS                 |
+| :--------------------------------------: | :----------------------------------: |
+| ![Windows Demo](assets/demo/windows.gif) | ![macOS Demo](assets/demo/macos.gif) |
+
+|               Web                |
+| :------------------------------: |
+| ![Web Demo](assets/demo/web.gif) |
+
+---
+
 ## ✨ Features
 
 ### 🎬 Adaptive Video Player
@@ -90,7 +106,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  adaptive_video_player: ^1.1.0
+  adaptive_video_player: ^1.1.1
 ```
 
 ## 🔒 Platform Permissions & Setup
