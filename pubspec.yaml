@@ -8,6 +8,14 @@ issue_tracker: https://github.com/ahmedalam782/vidoes_player/issues
 environment:
   sdk: ">=3.1.0 <4.0.0"
 
+topics:
+  - video-player
+  - youtube
+  - streaming
+  - hls
+  - cross-platform
+  - flutter-desktop
+
 dependencies:
   flutter:
     sdk: flutter

@@ -1,8 +1,8 @@
 # 🎥 Adaptive Video Player
 
-**The only Flutter video player that supports YouTube + Direct videos on ALL platforms with one widget.**
+🔥 **One Widget. All Platforms. YouTube + MP4. Zero Headaches.**
 
-A powerful, production-ready Flutter video player that automatically detects **YouTube URLs** and **direct video sources (MP4/HLS/local)** and adapts seamlessly across:
+**A powerful cross-platform Flutter video player that supports YouTube, MP4, HLS, and local videos with one unified widget.**
 
 **Android · iOS · Windows · macOS · Linux · Web**
 
@@ -27,29 +27,11 @@ AdaptiveVideoPlayer(
 
 ---
 
-# 🎬 Platform Previews
+# 📸 Screenshots
 
-## 🪟 Windows Desktop
-
-![Windows Demo](assets/demo/windows.gif)
-
-## 🌐 Web
-
-![Web Demo](assets/demo/web.gif)
-
-## 🤖 Android
-
-![Android Demo](assets/demo/android.gif)
-
-## 🍎 iOS
-
-![iOS Demo](assets/demo/ios.gif)
-
-## 🍏 macOS
-
-![macOS Demo](assets/demo/macos.gif)
-
-> ⚠️ Recommended: keep each GIF under 5MB for fast loading on pub.dev.
+| Android                                    | Windows                                    | Web                                |
+| ------------------------------------------ | ------------------------------------------ | ---------------------------------- |
+| ![Android](assets/screenshots/android.png) | ![Windows](assets/screenshots/windows.png) | ![Web](assets/screenshots/web.png) |
 
 ---
 
@@ -89,16 +71,15 @@ AdaptiveVideoPlayer(
 
 ---
 
-# 🆚 Why Not Just Use Other Packages?
+# 🆚 Comparison With Popular Packages
 
-| Feature             | adaptive_video_player | youtube_player_flutter | chewie | video_player |
-| ------------------- | --------------------- | ---------------------- | ------ | ------------ |
-| YouTube + MP4       | ✅                    | ❌                     | ❌     | ❌           |
-| Desktop Support     | ✅                    | ❌                     | ⚠️     | ⚠️           |
-| Live Stream Support | ✅                    | ❌                     | ❌     | ❌           |
-| Quality Selection   | ✅                    | ❌                     | ❌     | ❌           |
-| Unified API         | ✅                    | ❌                     | ❌     | ❌           |
-| WASM Ready          | ✅                    | ❌                     | ❌     | ❌           |
+| Feature         | adaptive_video_player | youtube_player_flutter | chewie | video_player |
+| --------------- | --------------------- | ---------------------- | ------ | ------------ |
+| YouTube Support | ✅                    | ✅                     | ❌     | ❌           |
+| MP4/HLS Support | ✅                    | ❌                     | ✅     | ✅           |
+| Desktop Support | ✅                    | ❌                     | ⚠️     | ⚠️           |
+| Unified Widget  | ✅                    | ❌                     | ❌     | ❌           |
+| Live Stream     | ✅                    | ❌                     | ❌     | ❌           |
 
 ---
 
