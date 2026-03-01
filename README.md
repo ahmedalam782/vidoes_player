@@ -141,10 +141,10 @@ AdaptiveVideoPlayer(
 
 ---
 
-# 🔮 Roadmap
+## 🔮 Roadmap (Planned)
 
-- 🎬 Playlist Support
-- 📺 Picture-in-Picture
+- 🎬 Playlist Support (Coming Soon)
+- 📺 Picture-in-Picture (In Progress)
 
 ---
 
