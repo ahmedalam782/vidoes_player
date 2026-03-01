@@ -42,6 +42,7 @@ AdaptiveVideoPlayer(
 - 🔍 Smart YouTube vs MP4 detection
 - 🎯 Unified API (one widget for everything)
 - 🌍 True Cross-Platform support
+- 📊 Native analytics events & callbacks (`onAnalyticsEvent`)
 - 🧠 Production-ready architecture
 
 ---
@@ -143,7 +144,6 @@ AdaptiveVideoPlayer(
 # 🔮 Roadmap
 
 - 🎬 Playlist Support
-- 📊 Analytics callbacks
 - 📺 Picture-in-Picture
 - 🔐 DRM support
 
