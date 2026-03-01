@@ -145,7 +145,6 @@ AdaptiveVideoPlayer(
 
 - 🎬 Playlist Support
 - 📺 Picture-in-Picture
-- 🔐 DRM support
 
 ---
 
