@@ -29,9 +29,9 @@ AdaptiveVideoPlayer(
 
 # 📸 Screenshots
 
-| Android                                    | Windows                                    | Web                                |
-| ------------------------------------------ | ------------------------------------------ | ---------------------------------- |
-| ![Android](assets/screenshots/android.png) | ![Windows](assets/screenshots/windows.png) | ![Web](assets/screenshots/web.png) |
+| Android                                            | Windows                                            | Web                                        |
+| -------------------------------------------------- | -------------------------------------------------- | ------------------------------------------ |
+| ![Android](assets/screenshots/android/%281%29.png) | ![Windows](assets/screenshots/windows/%282%29.png) | ![Web](assets/screenshots/web/%283%29.png) |
 
 ---
 
