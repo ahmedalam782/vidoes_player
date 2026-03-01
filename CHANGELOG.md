@@ -8,6 +8,7 @@
 - **Refactoring:** Removed the heavy `chewie` dependency out completely and engineered a fully integrated and adaptive built-in custom video playback control logic.
 - **Refactoring:** Replaced `dart:html` with `package:web` completely, making the package **100% WASM ready** for advanced Web platform outputs.
 - **Documentation:** Added a comprehensive Flutter example application demonstrating MP4 and YouTube video playback, and updated README instructions for Android.
+- **Documentation:** Fixed README.md formatting and pubspec.yaml topic limits to achieve maximum 160 points on pub.dev.
 
 ## 1.0.4
 

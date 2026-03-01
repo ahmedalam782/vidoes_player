@@ -1,4 +1,4 @@
-# 🎥 Adaptive Video Player
+# Adaptive Video Player 🎥
 
 🔥 **One Widget. All Platforms. YouTube + MP4. Zero Headaches.**
 
@@ -13,7 +13,7 @@
 
 ---
 
-# ⚡ 10-Second Quick Start
+# Quick Start ⚡
 
 ```dart
 AdaptiveVideoPlayer(
@@ -27,17 +27,17 @@ AdaptiveVideoPlayer(
 
 ---
 
-# 📸 Screenshots
+# Screenshots 📸
 
-| Android                                            | Windows                                            | Web                                        |
-| -------------------------------------------------- | -------------------------------------------------- | ------------------------------------------ |
-| ![Android](assets/screenshots/android/%281%29.png) | ![Windows](assets/screenshots/windows/%282%29.png) | ![Web](assets/screenshots/web/%283%29.png) |
+| Android                                      | Windows                                      | Web                                  |
+| -------------------------------------------- | -------------------------------------------- | ------------------------------------ |
+| ![Android](assets/screenshots/android/1.png) | ![Windows](assets/screenshots/windows/2.png) | ![Web](assets/screenshots/web/3.png) |
 
 ---
 
-# ✨ Features
+# Features ✨
 
-## 🎬 Adaptive Video Player
+## Adaptive Video Player 🎬
 
 - 🔍 Smart YouTube vs MP4 detection
 - 🎯 Unified API (one widget for everything)
@@ -47,7 +47,7 @@ AdaptiveVideoPlayer(
 
 ---
 
-## 📺 YouTube Support
+## YouTube Support 📺
 
 - Native-like mobile experience
 - Native YouTube controls on Desktop & Web
@@ -60,7 +60,7 @@ AdaptiveVideoPlayer(
 
 ---
 
-## 🎞️ Direct Video Support
+## Direct Video Support 🎞️
 
 - MP4 · MOV · MKV · WebM · HLS · Local files
 - Quality selection
@@ -72,7 +72,7 @@ AdaptiveVideoPlayer(
 
 ---
 
-# 🆚 Comparison With Popular Packages
+# Comparison With Popular Packages 🆚
 
 | Feature         | adaptive_video_player | youtube_player_flutter | chewie | video_player |
 | --------------- | --------------------- | ---------------------- | ------ | ------------ |
@@ -84,7 +84,7 @@ AdaptiveVideoPlayer(
 
 ---
 
-# 🖥 Platform Behavior
+# Platform Behavior 🖥
 
 | Platform                | Engine                      |
 | ----------------------- | --------------------------- |
@@ -96,7 +96,7 @@ AdaptiveVideoPlayer(
 
 ---
 
-# 📦 Installation
+# Installation 📦
 
 ```yaml
 dependencies:
@@ -105,7 +105,7 @@ dependencies:
 
 ---
 
-# 🚀 Example Usage
+# Example Usage 🚀
 
 ### YouTube
 
@@ -141,20 +141,20 @@ AdaptiveVideoPlayer(
 
 ---
 
-## 🔮 Roadmap (Planned)
+## Roadmap (Planned) 🔮
 
 - 🎬 Playlist Support (Coming Soon)
 - 📺 Picture-in-Picture (In Progress)
 
 ---
 
-# 👨💻 Author
+# Author 👨💻
 
 Ahmed Mohamed Alam
 GitHub: [https://github.com/ahmedalam782](https://github.com/ahmedalam782)
 
 ---
 
-# 📝 License
+# License 📝
 
 MIT License
