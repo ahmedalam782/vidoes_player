@@ -450,7 +450,8 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 - [youtube_player_flutter](https://pub.dev/packages/youtube_player_flutter) — YouTube player for mobile
 - [flutter_inappwebview](https://pub.dev/packages/flutter_inappwebview) — WebView for Desktop YouTube
 - [video_player](https://pub.dev/packages/video_player) — Flutter's official video player
+- [video_player_media_kit](https://pub.dev/packages/video_player_media_kit) — Linux video playback via media_kit
+- [video_player_win](https://pub.dev/packages/video_player_win) — Windows video playback via Media Foundation
 - [flutter_bloc](https://pub.dev/packages/flutter_bloc) — State management
-- [video_player_win](https://pub.dev/packages/video_player_win) — Windows MP4 support
 - [url_launcher](https://pub.dev/packages/url_launcher) — Launching external URLs safely
 - [web](https://pub.dev/packages/web) — Modern Web APIs for WASM compatibility
