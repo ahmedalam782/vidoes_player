@@ -845,7 +845,7 @@ class AdaptiveControlsLayer extends StatelessWidget {
         child: Icon(
           isFullScreen ? Icons.fullscreen_exit : Icons.fullscreen,
           color: styling?.iconColor ?? Colors.white,
-          size: 18,
+          size: 30
         ),
       ),
     );

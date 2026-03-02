@@ -106,7 +106,7 @@ Add to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  adaptive_video_player: ^1.2.2
+  adaptive_video_player: ^1.2.3
 ```
 
 ## 🔒 Platform Permissions & Setup

@@ -1,7 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:adaptive_video_player/adaptive_video_player.dart';
 
 void main() {
+  if (Platform.isLinux) {
+    AdaptiveVideoPlayerPlatform.ensureInitialized();
+  }
   runApp(const MyApp());
 }
 
@@ -100,24 +105,20 @@ It shows how subtitles overlay on video.
               qualities: [
                 const VideoQuality(
                   title: 'Auto (HLS)',
-                  url:
-                      'https://upload.mp3quran.net/group1_pbuh/maher.mp4',
+                  url: 'https://upload.mp3quran.net/group1_pbuh/maher.mp4',
                 ),
                 const VideoQuality(
                   title: 'HD',
-                  url:
-                      'https://upload.mp3quran.net/group1_pbuh/maher.mp4',
+                  url: 'https://upload.mp3quran.net/group1_pbuh/maher.mp4',
                 ),
                 const VideoQuality(
                   title: 'SD',
-                  url:
-                      'https://upload.mp3quran.net/group1_pbuh/maher.mp4',
+                  url: 'https://upload.mp3quran.net/group1_pbuh/maher.mp4',
                 ),
               ],
               initialQuality: const VideoQuality(
                 title: 'Auto (HLS)',
-                url:
-                    'https://upload.mp3quran.net/group1_pbuh/maher.mp4',
+                url: 'https://upload.mp3quran.net/group1_pbuh/maher.mp4',
               ),
               onAnalyticsEvent: (event, data) {
                 debugPrint('Analytics: $event - Data: $data');
@@ -129,14 +130,12 @@ It shows how subtitles overlay on video.
             'Video with "Live" Option in Settings',
             const VideoConfig(
               // Here is the non-live MP4 stream
-              videoUrl:
-                  'https://upload.mp3quran.net/group1_pbuh/maher.mp4',
+              videoUrl: 'https://upload.mp3quran.net/group1_pbuh/maher.mp4',
               viewerCount: '93k VIEWERS', // Demonstration of the viewer count!
               qualities: [
                 VideoQuality(
                   title: 'Recorded (MP4)',
-                  url:
-                      'https://upload.mp3quran.net/group1_pbuh/maher.mp4',
+                  url: 'https://upload.mp3quran.net/group1_pbuh/maher.mp4',
                   isLive: false,
                 ),
                 VideoQuality(

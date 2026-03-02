@@ -1,4 +1,13 @@
-## 1.2.2
+## 1.2.3
+
+- **Major Feature:** Added full **Windows** and **Linux** platform support — package now supports **all 6 platforms** (20/20 on pub.dev).
+  - **Windows:** Uses `video_player_win` for normal video playback (compatible with `flutter_inappwebview`).
+  - **Linux:** Uses `video_player_media_kit` (`media_kit` backend) for normal video playback.
+- **New API:** Added `AdaptiveVideoPlayerPlatform.ensureInitialized()` — a single-line setup to enable desktop video playback in your `main()`.
+- **Fix:** Moved YouTube player fullscreen button to appear after the YouTube logo in the bottom bar and increased icon size for better visibility.
+- **Documentation:** Updated README with new platform support table, combined Windows & Linux setup guide, and updated FAQ.
+
+## 1.1.1
 
 - **Documentation:** Complete README overhaul with comprehensive usage examples, full configuration reference tables, platform permissions & setup guide, FAQ section, architecture overview, and contributing guidelines.
 - **Documentation:** Added platform demo GIFs (Android, iOS, Windows, macOS, Web) to the README.

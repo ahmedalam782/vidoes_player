@@ -8,6 +8,7 @@ import 'src/normal_video_player/normal_video_player.dart';
 export 'src/normal_video_player/adaptive_controls.dart'
     show AdaptiveControlsBuilder, SubtitleBuilder;
 export 'src/normal_video_player/model/video_config.dart';
+export 'src/platform_init.dart';
 export 'src/youtube_player/models/player_config.dart';
 
 /// Adaptive video player that detects and plays both YouTube and normal videos
